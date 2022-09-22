@@ -9,5 +9,8 @@ Just download these 2 files and start using `const [value, setValue] = usePersis
 - add conditional persistence - allow disabling storage usage with a config key
 - add config key to swallow errors silently without logging errors
 
+## What if you want a Vanilla JS version?
+I'm sorry to hear that. You could do `$ npx tsc --init && npx tsc ./StorageHelper.ts ./usePersistentState.ts` and end up with an ugly, but working JS version.
+
 ## Why no NPM package?
 I don't have time. I set up the repo just to share it with a few friends quickly.
