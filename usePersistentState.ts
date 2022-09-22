@@ -1,5 +1,5 @@
 /**
- * @author Denis Kabana <denis@nekastores.eu>
+ * @author Denis Kabana <github.com/deniskabana>
  * @license MIT
  * @description Persistent state hook that mimics React's own useState and internally adds storage management
  * @requires React, ./StorageHelper.ts
