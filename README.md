@@ -1,5 +1,5 @@
 # react-persistent-state-hook
-Hook that replaces React.useState with usePersistentState.
+Hook that replaces React.useState with usePersistentState. Utilizes Browser Storage API, tested with Next.js - optimized for SSR/SSG and browser runtime.
 
 ## How to use
 Just download these 2 files and start using `const [value, setValue] = usePersistentState(JSONValidValue, 'unique-identifier', StorageTypes.session);` in your code. Examples are documented with JSDoc comments inside the actual code. See [here](https://github.com/deniskabana/react-persistent-state-hook/blob/main/usePersistentState.ts#L40) for more info.
