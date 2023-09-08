@@ -1,7 +1,7 @@
 {
   "name": "react-persistent-state-hook",
   "version": "0.9.0",
-  "description": "React.useState + BrowserStorage persistence",
+  "description": "`React.useState` + BrowserStorage API for persistence",
   "main": "dist/index.js",
   "repository": "git@github.com:deniskabana/react-persistent-state-hook.git",
   "url": "https://github.com/deniskabana/react-persistent-state-hook",
@@ -23,13 +23,17 @@
     "start": "tsc -w",
     "build": "tsc",
     "check:tsc": "tsc --noEmit",
-    "check:lint": "eslint src/",
+    "check:lint": "eslint src/ --max-warnings=0",
+    "check": "yarn check:lint && yarn check:tsc",
     "fix:format": "prettier --write src/",
-    "pre:publish": "rm -rf dist && yarn check:lint && yarn check:tsc && yarn build",
+    "fix:style": "eslint --fix src/",
+    "fix": "yarn fix:format && yarn fix:style",
+    "pre:publish": "rm -rf dist && yarn fix && yarn check && yarn build",
     "publish": "yarn pre-publish && npm publish"
   },
   "dependencies": {
-    "react": "^16.8.0"
+    "lodash.isequal": "^4.5.0",
+    "react": "18.2.0"
   },
   "packageManager": "yarn@3.6.3",
   "engines": {
@@ -37,6 +41,9 @@
     "yarn": ">= 3"
   },
   "devDependencies": {
+    "@types/lodash.isequal": "^4.5.6",
+    "@types/node": "^20.5.9",
+    "@types/react": "^18.2.21",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.6.0",
     "eslint": "^8.48.0",
@@ -49,6 +56,6 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
-    "react": "^16.8.0"
+    "react": ">= 16.8.0"
   }
 }
