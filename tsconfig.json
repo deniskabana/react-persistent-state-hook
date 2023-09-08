@@ -1,8 +1,9 @@
 {
-  "include": ["src"],
+  "include": ["src/index.ts"],
   "compilerOptions": {
-    "module": "esnext",
+    "module": "CommonJS",
     "lib": ["dom", "esnext"],
+    "outDir": "./dist",
     "importHelpers": true,
     // output .d.ts declaration files for consumers
     "declaration": true,
