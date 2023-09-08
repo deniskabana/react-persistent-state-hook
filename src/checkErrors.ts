@@ -17,7 +17,7 @@ export function checkMissingStorageKey(storageKey?: unknown): boolean {
  * Returns true if storage type is invalid, false if it's a member of `StorageType` enum.
  */
 export function checkStorageType(storageType?: unknown): boolean {
-  if (!storageType || (storageType !== StorageType.local && storageType !== StorageType.session)) {
+  if (!storageType || (storageType !== StorageType.Local && storageType !== StorageType.Session)) {
     warn("Invalid storage type provided. Resorted to `React.useState`.")
     return true
   } else {

@@ -7,11 +7,11 @@ import {
   checkStorageType,
   checkWindow,
 } from "./checkErrors"
-import { storageRemove, storageSet, serializeValue } from "./storage"
+import { storageRemove, storageSet, serializeValue, storageGet } from "./storage"
 
 export enum StorageType {
-  local = "local",
-  session = "session",
+  Local = "local",
+  Session = "session",
 }
 
 // Overloads modified from React v16.8.0 `useState` hook
@@ -42,17 +42,18 @@ export function usePersistentState<S = undefined>(
 export function usePersistentState(
   initialState: any,
   storageKey: string,
-  storageType: StorageType = StorageType.local,
+  storageType: StorageType = StorageType.Local,
 ) {
   // Initialize classic React state
-  const [value, setValue] = useState(initialState)
+  const [value, setValue] = useState(() => storageGet(storageType, storageKey, initialState) ?? initialState)
 
   // Resort to React useState if necessary
   if (checkMissingStorageKey() || checkStorageType(storageType) || checkWindow() || checkBrowserStorage()) {
     return [value, setValue]
   }
 
-  // Update value in storage when changed
+  // This will not be called intentionally if initial checks won't pass
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!value?.length) {
       storageRemove(storageType, storageKey)
@@ -63,15 +64,11 @@ export function usePersistentState(
     checkIfSerializable(serializedValue)
     // Update or remove
     storageSet(storageType, storageKey, serializedValue)
-  }, [value])
+  }, [value, storageKey, storageType])
 
   // Return state management
   return [value, setValue]
 }
-
-//   if (!storageKey) {
-//     return [value, setValue]
-//   }
 
 //   // Unfortunate extra state for initialization management; Faster than ref, safer than window.customVar
 //   const [initialized, setInitialized] = useState(false)
@@ -91,16 +88,3 @@ export function usePersistentState(
 //     // Prevent further intialization
 //     setInitialized(true)
 //   }
-
-//   // Save new data when changed
-//   useEffect(() => {
-//     if (storageKey?.length) {
-//       storage(storageType).set(storageKey, value)
-//     }
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, [value])
-
-//   return [value, setValue]
-// }
-
-// export default usePersistentState
