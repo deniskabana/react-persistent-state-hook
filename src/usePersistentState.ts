@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react"
 import type { Dispatch, SetStateAction } from "react"
-import { error, warn } from "./errors"
-import isEqual from "lodash.isequal"
+import {
+  checkBrowserStorage,
+  checkIfSerializable,
+  checkMissingStorageKey,
+  checkStorageType,
+  checkWindow,
+} from "./checkErrors"
+import { storageRemove, storageSet, serializeValue } from "./storage"
 
-// TYPES
-// ----------------------------------------------------------------------
-
-type StorageKey = string
-
-enum StorageType {
+export enum StorageType {
   local = "local",
   session = "session",
 }
@@ -16,18 +17,15 @@ enum StorageType {
 // Overloads modified from React v16.8.0 `useState` hook
 export function usePersistentState<S>(
   initialState: S | (() => S),
-  storageKey: StorageKey,
+  storageKey: string,
   storageType?: StorageType,
 ): [S, Dispatch<SetStateAction<S>>]
 
 export function usePersistentState<S = undefined>(
   initialState: undefined,
-  storageKey: StorageKey,
+  storageKey: string,
   storageType?: StorageType,
 ): [S | undefined, Dispatch<SetStateAction<S | undefined>>]
-
-// COMPONENT
-// ----------------------------------------------------------------------
 
 /**
  * > #### usePersistentState
@@ -41,51 +39,30 @@ export function usePersistentState<S = undefined>(
  * @linkcode https://github.com/deniskabana/react-persistent-state-hook
  * @link https://www.npmjs.com/package/react-persistent-state-hook
  */
-export default function usePersistentState(
+export function usePersistentState(
   initialState: any,
-  storageKey: StorageKey,
+  storageKey: string,
   storageType: StorageType = StorageType.local,
 ) {
   // Initialize classic React state
   const [value, setValue] = useState(initialState)
 
-  // Guard clause if storage key was not provided
-  if (!storageKey?.length) {
-    warn("No storage key provided. Resorted to `React.useState`.")
+  // Resort to React useState if necessary
+  if (checkMissingStorageKey() || checkStorageType(storageType) || checkWindow() || checkBrowserStorage()) {
     return [value, setValue]
   }
 
-  // Update/remove value in storage when changed
+  // Update value in storage when changed
   useEffect(() => {
-    // Check if running in non-broswer environment
-    if (typeof window === "undefined") return
-
-    // Check if environment supports BrowserStorage
-    if (!("localStorage" in window) && !("sessionStroage" in window)) {
-      warn("You are running in an environment that does not support BrowserStorage API.")
-      return
-    }
-
-    // If value is undefined, remove key from storage
     if (!value?.length) {
-      window[`${storageType}Storage`].removeItem(storageKey)
+      storageRemove(storageType, storageKey)
       return
     }
-
-    // Check if value is serializable and failsafe it
-    let stringifiedValue: string | undefined = String(JSON.stringify(value))
-    stringifiedValue = stringifiedValue === "undefined" ? undefined : (stringifiedValue as string)
-
-    // Check if object is serializable
-    // if (!isEqual(value, JSON.parse(stringifiedValue))) {
-    //   warn("Provided state value is not serializable.")
-    // }
-
-    try {
-      window[`${storageType}Storage`].setItem(storageKey, String(JSON.stringify(value)))
-    } catch (_err) {
-      error("Failed to save state to BrowserStorage.")
-    }
+    // Serialize value before saving
+    const serializedValue = serializeValue(value)
+    checkIfSerializable(serializedValue)
+    // Update or remove
+    storageSet(storageType, storageKey, serializedValue)
   }, [value])
 
   // Return state management

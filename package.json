@@ -32,7 +32,6 @@
     "publish": "yarn pre-publish && npm publish"
   },
   "dependencies": {
-    "lodash.isequal": "^4.5.0",
     "react": "18.2.0"
   },
   "packageManager": "yarn@3.6.3",
@@ -41,7 +40,6 @@
     "yarn": ">= 3"
   },
   "devDependencies": {
-    "@types/lodash.isequal": "^4.5.6",
     "@types/node": "^20.5.9",
     "@types/react": "^18.2.21",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
