@@ -7,15 +7,15 @@
 // IMPORTS
 // ----------------------------------------------------------------------
 
-import { useState, useEffect } from "react";
-import type { Dispatch, SetStateAction } from "react";
+import { useState, useEffect } from "react"
+import type { Dispatch, SetStateAction } from "react"
 
 // TYPES
 // ----------------------------------------------------------------------
 
-type InitialState<S> = S | (() => S);
-type StorageKey = string;
-type ReturnType<S> = [S, Dispatch<SetStateAction<S>>];
+type InitialState<S> = S | (() => S)
+type StorageKey = string
+type ReturnType<S> = [S, Dispatch<SetStateAction<S>>]
 
 // OVERLOADS
 // ----------------------------------------------------------------------
@@ -24,8 +24,8 @@ type ReturnType<S> = [S, Dispatch<SetStateAction<S>>];
 function usePersistentState<S = undefined>(
   initialState: InitialState<S> | undefined,
   storageKey: StorageKey,
-  storageType?: StorageTypes
-): [S, Dispatch<SetStateAction<S | undefined>>];
+  storageType?: StorageTypes,
+): [S, Dispatch<SetStateAction<S | undefined>>]
 
 // COMPONENT
 // ----------------------------------------------------------------------
@@ -44,39 +44,39 @@ function usePersistentState<S = undefined>(
 function usePersistentState<S>(
   initialState: InitialState<S>,
   storageKey: StorageKey,
-  storageType: StorageTypes = StorageTypes.local
+  storageType: StorageTypes = StorageTypes.local,
 ): ReturnType<S> {
   // Unfortunate extra state for initialization management; Faster than ref, safer than window.customVar
-  const [initialized, setInitialized] = useState(false);
-  let initialValue = initialState;
+  const [initialized, setInitialized] = useState(false)
+  let initialValue = initialState
 
   // Load data from storage on mount
   if (!initialized) {
     if (storageKey?.length) {
-      const newValue = storage(storageType).get(storageKey);
+      const newValue = storage(storageType).get(storageKey)
       // Upon retrieving a new value, set it to React state
       if (newValue !== "" && typeof newValue !== "undefined") {
-        initialValue = newValue;
+        initialValue = newValue
       } else {
-        storage(storageType).set(storageKey, initialState);
+        storage(storageType).set(storageKey, initialState)
       }
     }
     // Prevent further intialization
-    setInitialized(true);
+    setInitialized(true)
   }
 
   // Actual react hook code
-  const [value, setValue] = useState<S>(initialValue);
+  const [value, setValue] = useState<S>(initialValue)
 
   // Save new data when changed
   useEffect(() => {
     if (storageKey?.length) {
-      storage(storageType).set(storageKey, value);
+      storage(storageType).set(storageKey, value)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value])
 
-  return [value, setValue];
+  return [value, setValue]
 }
 
-export default usePersistentState;
+export default usePersistentState

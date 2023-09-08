@@ -15,7 +15,7 @@ export default function storage(storageType: StorageTypes) {
       get: (..._args: any[]) => null,
       set: (..._args: any[]) => null,
       delete: (..._args: any[]) => null,
-    };
+    }
   }
 
   /**
@@ -23,17 +23,17 @@ export default function storage(storageType: StorageTypes) {
    * @param key Item key
    */
   function storageGet(key: string): any {
-    const storageHandler = window[`${storageType}Storage`] ?? window.sessionStorage;
-    const storedData = storageHandler.getItem(key);
+    const storageHandler = window[`${storageType}Storage`] ?? window.sessionStorage
+    const storedData = storageHandler.getItem(key)
 
-    let parsedData;
+    let parsedData
     try {
-      parsedData = JSON.parse(storedData ?? "");
+      parsedData = JSON.parse(storedData ?? "")
     } catch (error) {
-      console.error(error);
+      console.error(error)
     }
 
-    return parsedData;
+    return parsedData
   }
 
   /**
@@ -41,9 +41,9 @@ export default function storage(storageType: StorageTypes) {
    * @param key Item key
    */
   function storageSet(key: string, value: any): void {
-    const storageHandler = window[`${storageType}Storage`] ?? window.sessionStorage;
-    const stringifiedData = JSON.stringify(value);
-    storageHandler.setItem(key, stringifiedData);
+    const storageHandler = window[`${storageType}Storage`] ?? window.sessionStorage
+    const stringifiedData = JSON.stringify(value)
+    storageHandler.setItem(key, stringifiedData)
   }
 
   /**
@@ -51,13 +51,13 @@ export default function storage(storageType: StorageTypes) {
    * @param key Item key
    */
   function storageDelete(key: string): void {
-    const storageHandler = window[`${storageType}Storage`] ?? window.sessionStorage;
-    storageHandler.removeItem(key);
+    const storageHandler = window[`${storageType}Storage`] ?? window.sessionStorage
+    storageHandler.removeItem(key)
   }
 
   return {
     get: storageGet,
     set: storageSet,
     delete: storageDelete,
-  };
+  }
 }
