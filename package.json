@@ -1,0 +1,25 @@
+{
+  "name": "react-persistent-state-hook",
+  "version": "0.9.0",
+  "description": "React.useState + BrowserStorage persistence",
+  "main": "dist/index.js",
+  "repository": "git@github.com:deniskabana/react-persistent-state-hook.git",
+  "author": "Denis Kabana <denis.kabana@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsc -w",
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "fix:format": "prettier --write src/",
+    "pre-publish": "rm -rf dist && yarn type-check && yarn build",
+    "publish": "yarn pre-publish && npm publish"
+  },
+  "dependencies": {
+    "react": "^16.8.0"
+  },
+  "packageManager": "yarn@3.6.3",
+  "engines": {
+    "node": ">=20.5.1",
+    "yarn": ">=3.6.3"
+  }
+}

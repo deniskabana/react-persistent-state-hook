@@ -1,15 +1,14 @@
 /**
  * @author Denis Kabana <github.com/deniskabana>
  * @license MIT
- * @description Persistent state hook that mimics React's own useState and internally adds storage management
- * @requires React, ./StorageHelper.ts
+ * @description React.useState + BrowserStorage persistence
  */
 
 // IMPORTS
 // ----------------------------------------------------------------------
 
-import { useState, useEffect, Dispatch, SetStateAction } from "react";
-import storage, { StorageTypes } from "./StorageHelper.ts";
+import { useState, useEffect } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 // TYPES
 // ----------------------------------------------------------------------
