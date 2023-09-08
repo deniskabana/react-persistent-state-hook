@@ -69,22 +69,3 @@ export function usePersistentState(
   // Return state management
   return [value, setValue]
 }
-
-//   // Unfortunate extra state for initialization management; Faster than ref, safer than window.customVar
-//   const [initialized, setInitialized] = useState(false)
-//   let initialValue = initialState
-
-//   // Load data from storage on mount
-//   if (!initialized) {
-//     if (storageKey?.length) {
-//       const newValue = storage(storageType).get(storageKey)
-//       // Upon retrieving a new value, set it to React state
-//       if (newValue !== "" && typeof newValue !== "undefined") {
-//         initialValue = newValue
-//       } else {
-//         storage(storageType).set(storageKey, initialState)
-//       }
-//     }
-//     // Prevent further intialization
-//     setInitialized(true)
-//   }
