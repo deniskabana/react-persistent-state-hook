@@ -14,6 +14,8 @@ export enum StorageType {
   Session = "session",
 }
 
+export type StorageTypeArg = StorageType | string
+
 // Options for use configuration
 
 export type Options = Partial<{
@@ -42,7 +44,7 @@ const defaultOptions: Options = {
 export function usePersistentState<S>(
   initialState: S | (() => S),
   storageKey: string,
-  storageType?: StorageType,
+  storageType?: StorageTypeArg,
   config?: Options,
 ): [S, Dispatch<SetStateAction<S>>]
 
@@ -61,7 +63,7 @@ export function usePersistentState<S>(
 export function usePersistentState<S = undefined>(
   initialState: undefined,
   storageKey: string,
-  storageType?: StorageType,
+  storageType?: StorageTypeArg,
   config?: Options,
 ): [S | undefined, Dispatch<SetStateAction<S | undefined>>]
 
@@ -71,7 +73,7 @@ export function usePersistentState<S = undefined>(
 export function usePersistentState(
   initialState: unknown,
   storageKey: string,
-  storageType: StorageType = StorageType.Local,
+  storageType: StorageTypeArg = StorageType.Local,
   config: Options = defaultOptions,
 ) {
   // Initialize classic React state
