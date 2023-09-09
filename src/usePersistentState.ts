@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from "react"
+import { useState, useEffect } from "react"
 import type { Dispatch, SetStateAction } from "react"
 import {
   checkBrowserStorage,
@@ -14,7 +14,7 @@ export enum StorageType {
   Session = "session",
 }
 
-// Overloads modified from React v16.8.0 `useState` hook
+// Overloads taken from React v16.8.0 `useState` hook
 export function usePersistentState<S>(
   initialState: S | (() => S),
   storageKey: string,
@@ -46,17 +46,12 @@ export function usePersistentState(
 ) {
   // Initialize classic React state
   const [value, setValue] = useState(() => storageGet(storageType, storageKey, initialState) ?? initialState)
-  const [shouldFallback, setShouldFallback] = useState(false)
 
   // Initial one-time checks
-  useLayoutEffect(() => {
+  useEffect(() => {
     checkMissingStorageKey(storageKey) || checkStorageType(storageType) || checkWindow() || checkBrowserStorage()
-    setShouldFallback(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  // Resort to React useState if necessary
-  if (shouldFallback) return [value, setValue]
 
   // This will not be called intentionally if initial checks won't pass
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -70,7 +65,8 @@ export function usePersistentState(
     checkIfSerializable(serializedValue)
     // Update or remove
     storageSet(storageType, storageKey, serializedValue)
-  }, [value, storageKey, storageType])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
 
   // Return state management
   return [value, setValue]
