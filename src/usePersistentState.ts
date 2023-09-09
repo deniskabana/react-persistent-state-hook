@@ -82,6 +82,7 @@ export function usePersistentState(
 
   // If set to verbose, log initialization
   if (config.verbose) {
+    // eslint-disable-next-line no-console
     console.log("usePersistentState / init", {
       initialState,
       storageKey,
@@ -105,6 +106,7 @@ export function usePersistentState(
   useEffect(() => {
     // If set to verbose, log every change
     if (config.verbose) {
+      // eslint-disable-next-line no-console
       console.log("usePersistentState / valueChange", {
         initialState,
         storageKey,
