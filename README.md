@@ -4,37 +4,51 @@
 
 ---
 
+<div align="center">
+
+![Build status](https://img.shields.io/github/actions/workflow/status/deniskabana/react-persistent-state-hook/pr-and-main-tests.yml?branch=main&style=for-the-badge)
+![Size](https://img.shields.io/bundlephobia/minzip/react-persistent-state-hook?style=for-the-badge)
+![Version](https://img.shields.io/npm/v/react-persistent-state-hook?style=for-the-badge)
+![License](https://img.shields.io/github/license/deniskabana/react-persistent-state-hook?style=for-the-badge)
+
+</div>
+
+---
+
 ### Features
 
-- Direct replacement for React's `useState` API
-- No configuration needed, just import and use
-- Error-less functionality even in SSR - will behave exactly like `useState` if storage is not available
-- No overhead - 1 hook, 1 peer dependency - React
+- **Drop-in replacement** for React's `useState` hook
+- **Zero configuration** - just use it
+- **SSR optimized** - will behave exactly like `useState` if storage is not available
+- **No overhead** - 1 hook, 1 peer dependency - React
+- **TypeScript support** - fully typed
 
 ---
 
 ### Usage
 
-Install library
+**1. Install library**
 
 ```bash
-npm i -S react-persistent-state-hook
-# or
 yarn add react-persistent-state-hook
+# or
+npm i -S react-persistent-state-hook
 ```
 
-Start coding!
+**2. Start coding!**
 
-```tsx
-// Drop-in replacement for React.useState() - just add key
+```typescript
+// Simple JS and TS usage
 const [count, setCount] = usePersistentState(0, "myCountUniqueKey")
 
-// More robust usage
-const [user, setUser] = usePersistentState<IUser>(userDataFromApi, "myUserUniqueKey", "sessionStorage")
+// More robust TS usage
+const [user, setUser] = usePersistentState<IUser>(defaultUser, StorageKey.User, StorageType.Session)
 
-// Fallback to React.useState() automatically if storage is not available or key not provided
+// React.useState graceful fallback
 const [isOpen, setIsOpen] = usePersistentState(false)
 ```
+
+_More usage options and tutorials coming soon! (see Roadmap)_
 
 ---
 
