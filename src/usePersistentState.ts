@@ -7,25 +7,15 @@ import {
   checkStorageType,
   checkWindow,
 } from "./checkErrors"
-import { storageRemove, storageSet, serializeValue, storageGet } from "./storage"
+import { storageSet, serializeValue, storageGet, storageRemove } from "./storage"
 
 export enum StorageType {
   Local = "local",
   Session = "session",
 }
 
-// Overloads taken from React v16.8.0 `useState` hook
-export function usePersistentState<S>(
-  initialState: S | (() => S),
-  storageKey: string,
-  storageType?: StorageType,
-): [S, Dispatch<SetStateAction<S>>]
-
-export function usePersistentState<S = undefined>(
-  initialState: undefined,
-  storageKey: string,
-  storageType?: StorageType,
-): [S | undefined, Dispatch<SetStateAction<S | undefined>>]
+// OVERLOADS
+// --------------------------------------------------
 
 /**
  * > #### usePersistentState
@@ -39,15 +29,42 @@ export function usePersistentState<S = undefined>(
  * @linkcode https://github.com/deniskabana/react-persistent-state-hook
  * @link https://www.npmjs.com/package/react-persistent-state-hook
  */
+export function usePersistentState<S>(
+  initialState: S | (() => S),
+  storageKey: string,
+  storageType?: StorageType,
+): [S, Dispatch<SetStateAction<S>>]
+
+/**
+ * > #### usePersistentState
+ *
+ * > A drop-in replacement for React's `useState` hook that persists value in
+ * > BrowserStorage API. To enable persistence, provide a unique `storageKey`.
+ *
+ * @author Denis Kabana <denis.kabana@gmail.com>
+ * @description `React.useState` + BrowserStorage API for persistence
+ * @license MIT
+ * @linkcode https://github.com/deniskabana/react-persistent-state-hook
+ * @link https://www.npmjs.com/package/react-persistent-state-hook
+ */
+export function usePersistentState<S = undefined>(
+  initialState: undefined,
+  storageKey: string,
+  storageType?: StorageType,
+): [S | undefined, Dispatch<SetStateAction<S | undefined>>]
+
+// HOOK CODE
+// --------------------------------------------------
+
 export function usePersistentState(
-  initialState: any,
+  initialState: unknown,
   storageKey: string,
   storageType: StorageType = StorageType.Local,
 ) {
   // Initialize classic React state
   const [value, setValue] = useState(() => storageGet(storageType, storageKey, initialState) ?? initialState)
 
-  // Initial one-time checks
+  // Initial one-time checks - all verbose
   useEffect(() => {
     checkMissingStorageKey(storageKey, true) ||
       checkStorageType(storageType, true) ||
@@ -59,13 +76,16 @@ export function usePersistentState(
   // This will not be called intentionally if initial checks won't pass
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    if (!value?.length) {
+    // Undefined is not a JSON serializable value, cancel operation
+    if (value === undefined) {
       storageRemove(storageType, storageKey)
       return
     }
+
     // Serialize value before saving
     const serializedValue = serializeValue(value)
-    checkIfSerializable(serializedValue)
+    checkIfSerializable(serializedValue, true) // Verbose
+
     // Update or remove
     storageSet(storageType, storageKey, serializedValue)
     // eslint-disable-next-line react-hooks/exhaustive-deps

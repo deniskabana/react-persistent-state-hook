@@ -2,8 +2,17 @@ import { error } from "./console"
 import { checkBrowserStorage, checkMissingStorageKey, checkStorageType, checkWindow } from "./checkErrors"
 import { StorageType } from "./usePersistentState"
 
+// Utility function
+function checkStorageAvailability(storageType: StorageType, storageKey: string): boolean {
+  if (checkWindow()) return true
+  if (checkBrowserStorage()) return true
+  if (checkStorageType(storageType)) return true
+  if (checkMissingStorageKey(storageKey)) return true
+  return false
+}
+
 /**
- * A helper function that serializes a value to a string.
+ * A function that serializes a value to a string or provides safe empty string.
  */
 export function serializeValue(value: unknown): string {
   try {
@@ -20,10 +29,7 @@ export function serializeValue(value: unknown): string {
  * Retrieves a value from BrowserStorage or return value provided.
  */
 export function storageGet(storageType: StorageType, storageKey: string, value: unknown): unknown | void {
-  if (checkWindow()) return value
-  if (checkBrowserStorage()) return value
-  if (checkStorageType(storageType)) return value
-  if (checkMissingStorageKey(storageKey)) return value
+  if (checkStorageAvailability(storageType, storageKey)) return value
 
   try {
     const storedValue = window[`${storageType}Storage`].getItem(storageKey)
@@ -38,10 +44,7 @@ export function storageGet(storageType: StorageType, storageKey: string, value: 
  * Saves a given **serialized value** to BrowserStorage.
  */
 export function storageSet(storageType: StorageType, storageKey: string, value?: string): void {
-  if (checkWindow()) return
-  if (checkBrowserStorage()) return
-  if (checkStorageType(storageType)) return
-  if (checkMissingStorageKey(storageKey)) return
+  if (checkStorageAvailability(storageType, storageKey)) return
 
   if (typeof value !== "string" || !value?.length) {
     storageRemove(storageType, storageKey)
@@ -59,10 +62,7 @@ export function storageSet(storageType: StorageType, storageKey: string, value?:
  * Removes a given key from BrowserStorage.
  */
 export function storageRemove(storageType: StorageType, storageKey: string): void {
-  if (checkWindow()) return
-  if (checkBrowserStorage()) return
-  if (checkStorageType(storageType)) return
-  if (checkMissingStorageKey(storageKey)) return
+  if (checkStorageAvailability(storageType, storageKey)) return
 
   try {
     window[`${storageType}Storage`].removeItem(storageKey)

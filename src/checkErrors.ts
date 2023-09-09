@@ -29,7 +29,12 @@ export function checkStorageType(storageType: unknown, verbose = false): boolean
  * Returns true if running in a non-browser environment, false if running in a browser environment.
  */
 export function checkWindow(verbose = false): boolean {
-  if (typeof window === "undefined") {
+  if (
+    typeof window === "undefined" ||
+    typeof window !== "object" ||
+    !window?.document ||
+    typeof document === "undefined"
+  ) {
     if (verbose) warn("You are running in a non-browser environment. Resorted to `React.useState`.")
     return true
   } else {
