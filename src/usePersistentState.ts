@@ -48,7 +48,7 @@ export function usePersistentState(
   const [value, setValue] = useState(() => storageGet(storageType, storageKey, initialState) ?? initialState)
 
   // Resort to React useState if necessary
-  if (checkMissingStorageKey() || checkStorageType(storageType) || checkWindow() || checkBrowserStorage()) {
+  if (checkMissingStorageKey(storageKey) || checkStorageType(storageType) || checkWindow() || checkBrowserStorage()) {
     return [value, setValue]
   }
 

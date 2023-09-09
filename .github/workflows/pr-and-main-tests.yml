@@ -6,17 +6,17 @@ name: Code test and checks
 on:
   push:
     branches:
-    - main
+      - main
   pull_request:
     branches:
-    - main
+      - main
 
 jobs:
   test-code:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set Node.js v20
         uses: actions/setup-node@v3
         with:
@@ -25,5 +25,11 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      - name: Static checking before publishing
-        run: yarn fix && yarn check
+      - name: Check ESLint
+        run: yarn check:lint
+
+      - name: Check TypeScript
+        run: yarn check:tsc
+
+      - name: Test build
+        run: yarn build

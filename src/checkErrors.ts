@@ -4,7 +4,7 @@ import { StorageType } from "./usePersistentState"
 /**
  * Returns true if storage key is missing, false if it's a valid string of length >= 1.
  */
-export function checkMissingStorageKey(storageKey?: unknown): boolean {
+export function checkMissingStorageKey(storageKey: unknown): boolean {
   if (typeof storageKey !== "string" || !storageKey?.length) {
     warn("No storage key provided. Resorted to `React.useState`.")
     return true
@@ -16,7 +16,7 @@ export function checkMissingStorageKey(storageKey?: unknown): boolean {
 /**
  * Returns true if storage type is invalid, false if it's a member of `StorageType` enum.
  */
-export function checkStorageType(storageType?: unknown): boolean {
+export function checkStorageType(storageType: unknown): boolean {
   if (!storageType || (storageType !== StorageType.Local && storageType !== StorageType.Session)) {
     warn("Invalid storage type provided. Resorted to `React.useState`.")
     return true
