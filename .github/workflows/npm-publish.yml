@@ -41,7 +41,17 @@ jobs:
           
       - name: Install dependencies
         run: yarn
-      
-      - run: npm publish
+
+      - name: Publish NPM package
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
+      - name: Automated Version Bump
+        uses: phips28/gh-action-bump-version@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag-prefix:  'v'
+          major-wording:  'breaking,Breaking,Major,major,refactor,drop'
+          minor-wording:  'minor,feature,feat,update'
