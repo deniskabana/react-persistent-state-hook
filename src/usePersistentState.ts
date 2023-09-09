@@ -14,6 +14,16 @@ export enum StorageType {
   Session = "session",
 }
 
+// Options for use configuration
+
+export type Options = Partial<{
+  verbose: boolean
+}>
+
+const defaultOptions: Options = {
+  verbose: false,
+} as const
+
 // OVERLOADS
 // --------------------------------------------------
 
@@ -33,6 +43,7 @@ export function usePersistentState<S>(
   initialState: S | (() => S),
   storageKey: string,
   storageType?: StorageType,
+  config?: Options,
 ): [S, Dispatch<SetStateAction<S>>]
 
 /**
@@ -51,6 +62,7 @@ export function usePersistentState<S = undefined>(
   initialState: undefined,
   storageKey: string,
   storageType?: StorageType,
+  config?: Options,
 ): [S | undefined, Dispatch<SetStateAction<S | undefined>>]
 
 // HOOK CODE
@@ -60,9 +72,24 @@ export function usePersistentState(
   initialState: unknown,
   storageKey: string,
   storageType: StorageType = StorageType.Local,
+  config: Options = defaultOptions,
 ) {
   // Initialize classic React state
   const [value, setValue] = useState(() => storageGet(storageType, storageKey, initialState) ?? initialState)
+
+  // Merge user options with defaults
+  config = { ...defaultOptions, ...config }
+
+  // If set to verbose, log initialization
+  if (config.verbose) {
+    console.log("usePersistentState / init", {
+      initialState,
+      storageKey,
+      storageType,
+      config,
+      value,
+    })
+  }
 
   // Initial one-time checks - all verbose
   useEffect(() => {
@@ -76,6 +103,17 @@ export function usePersistentState(
   // This will not be called intentionally if initial checks won't pass
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
+    // If set to verbose, log every change
+    if (config.verbose) {
+      console.log("usePersistentState / valueChange", {
+        initialState,
+        storageKey,
+        storageType,
+        config,
+        value,
+      })
+    }
+
     // Undefined is not a JSON serializable value, cancel operation
     if (value === undefined) {
       storageRemove(storageType, storageKey)
