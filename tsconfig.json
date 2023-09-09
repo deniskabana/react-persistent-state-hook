@@ -2,9 +2,8 @@
   "include": ["src/index.ts"],
   "compilerOptions": {
     "module": "CommonJS",
-    "lib": ["dom", "esnext"],
+    "target": "ES5",
     "outDir": "./dist",
-    "importHelpers": true,
     // output .d.ts declaration files for consumers
     "declaration": true,
     // output .js.map sourcemap files for consumers
