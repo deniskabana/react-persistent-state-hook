@@ -33,7 +33,10 @@
     "fix:style": "eslint --fix src/",
     "fix": "yarn fix:format && yarn fix:style",
     "pre:publish": "rm -rf dist && yarn fix && yarn check && yarn build",
-    "npm:publish": "yarn pre:publish && npm publish"
+    "npm:publish": "yarn pre:publish && npm publish",
+    "postinstall": "husky install",
+    "prepack": "pinst --disable",
+    "postpack": "pinst --enable"
   },
   "dependencies": {
     "react": "18.2.0"
@@ -53,6 +56,8 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.0",
+    "pinst": "^3.0.0",
     "prettier": "^3.0.3",
     "tsc": "^2.0.4",
     "typescript": "^5.2.2"

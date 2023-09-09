@@ -49,7 +49,10 @@ export function usePersistentState(
 
   // Initial one-time checks
   useEffect(() => {
-    checkMissingStorageKey(storageKey) || checkStorageType(storageType) || checkWindow() || checkBrowserStorage()
+    checkMissingStorageKey(storageKey, true) ||
+      checkStorageType(storageType, true) ||
+      checkWindow(true) ||
+      checkBrowserStorage(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
