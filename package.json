@@ -1,6 +1,6 @@
 {
   "name": "react-persistent-state-hook",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "description": "`React.useState` + BrowserStorage API for persistence",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -33,7 +33,7 @@
     "fix:style": "eslint --fix src/",
     "fix": "yarn fix:format && yarn fix:style",
     "pre:publish": "rm -rf dist && yarn fix && yarn check && yarn build",
-    "npm:publish": "yarn pre:publish && yarn publish"
+    "npm:publish": "yarn pre:publish && npm publish"
   },
   "dependencies": {
     "react": "18.2.0"
