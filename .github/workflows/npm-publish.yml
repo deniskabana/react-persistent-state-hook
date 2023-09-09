@@ -5,7 +5,7 @@ name: Publish to NPM
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   build:
@@ -27,21 +27,8 @@ jobs:
       - name: Build dist version
         run: yarn build
 
-  version-bump:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Automated Version Bump
-        uses: phips28/gh-action-bump-version@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag-prefix:  'v'
-          major-wording:  'breaking,Breaking,Major,major,refactor,drop'
-          minor-wording:  'minor,feature,feat,update'
-
   publish-npm:
-    needs: version-bump
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -56,12 +43,12 @@ jobs:
         run: yarn
 
       - name: Publish NPM package
-        run: npm publish
+        run: yarn npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
-  publish-gpr:
-    needs: version-bump
+  publish-github:
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -80,6 +67,6 @@ jobs:
         run: yarn
 
       - name: Publish package to GitHub
-        run: npm publish
+        run: yarn npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
