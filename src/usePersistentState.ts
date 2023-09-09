@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useLayoutEffect } from "react"
 import type { Dispatch, SetStateAction } from "react"
 import {
   checkBrowserStorage,
@@ -46,11 +46,17 @@ export function usePersistentState(
 ) {
   // Initialize classic React state
   const [value, setValue] = useState(() => storageGet(storageType, storageKey, initialState) ?? initialState)
+  const [shouldFallback, setShouldFallback] = useState(false)
+
+  // Initial one-time checks
+  useLayoutEffect(() => {
+    checkMissingStorageKey(storageKey) || checkStorageType(storageType) || checkWindow() || checkBrowserStorage()
+    setShouldFallback(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Resort to React useState if necessary
-  if (checkMissingStorageKey(storageKey) || checkStorageType(storageType) || checkWindow() || checkBrowserStorage()) {
-    return [value, setValue]
-  }
+  if (shouldFallback) return [value, setValue]
 
   // This will not be called intentionally if initial checks won't pass
   // eslint-disable-next-line react-hooks/rules-of-hooks
