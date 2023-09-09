@@ -27,8 +27,21 @@ jobs:
       - name: Build dist version
         run: yarn build
 
-  publish-npm:
+  version-bump:
     needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Automated Version Bump
+        uses: phips28/gh-action-bump-version@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag-prefix:  'v'
+          major-wording:  'breaking,Breaking,Major,major,refactor,drop'
+          minor-wording:  'minor,feature,feat,update'
+
+  publish-npm:
+    needs: version-bump
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -47,17 +60,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
-      - name: Automated Version Bump
-        uses: phips28/gh-action-bump-version@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag-prefix:  'v'
-          major-wording:  'breaking,Breaking,Major,major,refactor,drop'
-          minor-wording:  'minor,feature,feat,update'
-
   publish-gpr:
-    needs: build
+    needs: version-bump
     runs-on: ubuntu-latest
     permissions:
       contents: read
