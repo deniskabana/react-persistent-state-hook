@@ -16,7 +16,7 @@ import { serializeValue } from "./utils/utils"
 /** Purge state from storage and by default also current state. */
 export type PurgeMethod = (newState?: unknown) => void
 
-/** Version `<=2` only supports [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API). */
+/** **WARNING:** Version `<=2` only supports [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API). */
 export type StorageType = "local" | "session"
 
 /** Options API to change behavior */
