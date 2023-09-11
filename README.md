@@ -78,8 +78,6 @@ const [name, setName] = usePersistentState("John") // It just works 🎉
 
 We're committed to delivering a minimal and flexible solution for state management and persistence in React applications. Join us on this journey by contributing! 🚀
 
-_PS: We made our JSDoc annotation for the hook comprehensive - you don't have to leave your IDE to use this hook!_
-
 ---
 
 ### Usage

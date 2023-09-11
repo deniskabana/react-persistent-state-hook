@@ -5,19 +5,30 @@ import type { Options, StorageType } from "../usePersistentState"
 // Acronym for react-persistent-state-hook
 export const KEY_PREFIX = "[rpsh]"
 
+export const DEFAULT_OPTIONS: Options = {
+  verbose: false,
+  storageKey: undefined,
+  storageType: "local",
+}
+
 /**
  * Either prefix chosen storage key or generate one from state as string hash
  */
-export function generateStorageKey(options: Options, initialState: unknown) {
+export function generateStorageKey(options: Options, initialState: unknown): string | undefined {
   let key = options.storageKey
   if (!key) key = hashString(typeof initialState === "function" ? initialState() : initialState, options.verbose)
+  if (!key) return undefined
   return `${KEY_PREFIX}:${key}`
 }
 
 /**
  * Perform automatic checks when necessary
  */
-export function checkStorageAvailability(storageType: StorageType, storageKey: string, verbose: boolean): boolean {
+export function checkStorageAvailability(
+  storageType: StorageType,
+  storageKey: string | undefined,
+  verbose: boolean,
+): boolean {
   if (checkWindow(verbose)) return true
   if (checkBrowserStorage(verbose)) return true
   if (checkStorageType(storageType, verbose)) return true
@@ -58,20 +69,20 @@ export function serializeValue(value: unknown, verbose: boolean): string {
 /**
  * A function used when storage key is not provided
  */
-export function hashString(value: unknown, verbose: boolean): string {
+export function hashString(value: unknown, verbose: boolean): string | undefined {
   try {
     const serialized = JSON.stringify(value) ?? ""
     if (typeof serialized !== "string") throw new Error("Failed to serialize state.")
 
     let hash = 0
     for (let i = 0; i < serialized.length; i += 2) {
-      const chr = serialized.charCodeAt(i)
-      hash = (hash << 5) - hash + chr
-      hash |= 0 // Convert to 32bit integer
+      hash = (hash << 5) - hash + serialized.charCodeAt(i)
+      hash &= hash // Convert to 32bit integer
     }
-    return hash.toString(32).substring(2)
+
+    return new Uint32Array([hash])[0].toString(36)
   } catch (err) {
     if (verbose) error("Failed to generate storage key. See next console message for details.", err)
-    return Math.random().toString(32).substring(2) // Pseudo random for this session at least
+    return undefined
   }
 }
