@@ -1,6 +1,6 @@
 {
   "name": "react-persistent-state-hook",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "`React.useState` + BrowserStorage API for persistence",
   "source": "src/index.ts",
   "main": "dist/index.cjs.js",
@@ -19,6 +19,14 @@
     "state-management",
     "react-hooks"
   ],
+  "targets": {
+    "main": {
+      "optimize": true
+    },
+    "module": {
+      "optimize": true
+    }
+  },
   "files": [
     "dist",
     "package.json",
@@ -27,7 +35,7 @@
   ],
   "scripts": {
     "start": "tsc -w",
-    "build": "rm -rf dist/ && parcel build --no-source-maps",
+    "build": "rm -rf dist .parcel-cache && mkdir -p dist && parcel build --no-source-maps",
     "check:tsc": "tsc --noEmit",
     "check:lint": "eslint src/ --max-warnings=0",
     "check": "yarn check:lint && yarn check:tsc",

@@ -81,10 +81,11 @@ export type Options = Partial<{
 
 ### Roadmap
 
-- Add conditional persistence - allow disabling storage usage with a config key
+- Add config key for conditional persistence - allow disabling storage usage with a config key
 - Add config key to swallow errors/warnings silently without logging to console
 - Add config key for custom serialize and deserialize functions to use with JSON.stringify and JSON.parse
 - Add config key for custom storage API adapters (`config.storageAdapter`) as a USP and major feature - allows users to use redux, custom states, API comm, etc.
+- Add config key for resolution strategy when states are conflicting (i.e. different types or structure) - `merge`, `overwrite`, `throw`
 - Add storage versioning for when data structure changes (like redux-persist)
 - Write more examples & tutorials and document everything in this roadmap
 - Release 1.0.0 publicly
