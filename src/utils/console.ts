@@ -1,4 +1,4 @@
-export const prefix = "[react-persistent-state-hook]:"
+export const prefix = "[react-persistent-state-hook]: "
 const prefixWithStyles = `%c${prefix}%c`
 const styles = ["font-weight: bold", "font-weight: normal"]
 
@@ -15,4 +15,10 @@ export function error(message: string, logValue?: any): void {
   if (process.env.NODE_ENV === "production") return
   console.error(prefixWithStyles + message, styles[0], styles[1])
   if (logValue) console.error("Value related to the error:", logValue)
+}
+
+export function info(message: string, logValue?: any): void {
+  if (process.env.NODE_ENV === "production") return
+  console.info(prefixWithStyles + message, styles[0], styles[1])
+  if (logValue) console.info("Value related to the info:", logValue)
 }

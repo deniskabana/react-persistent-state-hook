@@ -5,7 +5,7 @@ import type { StorageType } from "../usePersistentState"
 /**
  * Perform automatic checks when necessary
  */
-export function checkStorageAvailability(storageType: StorageType, storageKey: string, verbose?: boolean): boolean {
+export function checkStorageAvailability(storageType: StorageType, storageKey: string, verbose: boolean): boolean {
   if (checkWindow(verbose)) return true
   if (checkBrowserStorage(verbose)) return true
   if (checkStorageType(storageType, verbose)) return true
@@ -16,7 +16,7 @@ export function checkStorageAvailability(storageType: StorageType, storageKey: s
 /**
  * Retrieve storage object from window.
  */
-export function getStorage(storageType: StorageType | unknown, verbose?: boolean): Storage | void {
+export function getStorage(storageType: StorageType | unknown, verbose: boolean): Storage | void {
   if (!checkWindow(verbose)) {
     switch (storageType) {
       case "local":
@@ -32,13 +32,13 @@ export function getStorage(storageType: StorageType | unknown, verbose?: boolean
 /**
  * A function that serializes a value to a string or provides safe empty string.
  */
-export function serializeValue(value: unknown): string {
+export function serializeValue(value: unknown, verbose: boolean): string {
   try {
     let result = JSON.stringify(value)
     result = result === "undefined" ? "" : result
     return result
   } catch (err) {
-    error("Failed to serialize value. See next console message for details.", err)
+    if (verbose) error("Failed to serialize value. See next console message for details.", err)
     return ""
   }
 }

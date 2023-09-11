@@ -135,7 +135,7 @@ const [tableUxPref, setTableUxPref] = usePersistentState(
 )
 ```
 
-Function signature for better understanding - this overload is used when the optional generic state type is provided in TS:
+Function signature for better understanding - this overload is used when `initialValue` is defined:
 
 ```typescript
 usePersistentState<S>(
@@ -159,18 +159,9 @@ Breaking changes in the Options API or elsewhere in `react-persistent-state-hook
 ```typescript
 /** Options API to change behavior */
 export type Options = {
-  /** Silently swallow all (even user) errors.
-   *  @default process.env.NODE_ENV === "production" */
-  silent: boolean
-
-  /** Print all warnings and errors in console. Overrides `silent` option.
+  /** Print all warnings and errors in console.
    *  @default false */
   verbose: boolean
-
-  /** Prefix is used to prevent key collisions in storage.
-   *  @pattern `/[0-9A-Za-z-_@/]+:/` (similar to npm package names)
-   *  @default "persistent-state:" */
-  prefix: string
 }
 ```
 

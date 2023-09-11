@@ -9,6 +9,7 @@ import {
 } from "./utils/checkErrors"
 import { storageSet, storageGet, storageRemove } from "./utils/storage"
 import { serializeValue } from "./utils/utils"
+import { info } from "./utils/console"
 
 // TYPES AND OPTIONS
 // --------------------------------------------------
@@ -21,24 +22,13 @@ export type StorageType = "local" | "session"
 
 /** Options API to change behavior */
 export type Options = {
-  /** Silently swallow all (even user) errors.
-   *  @default process.env.NODE_ENV === "production" */
-  silent: boolean
-
   /** Print all warnings and errors in console. Overrides `silent` option.
    *  @default false */
   verbose: boolean
-
-  /** Prefix is used to prevent key collisions in storage.
-   *  @pattern `/[0-9A-Za-z-_@/]+:/` (similar to npm package names)
-   *  @default "persistent-state:" */
-  prefix: string
 }
 
 const defaultOptions: Options = {
   verbose: false,
-  silent: process.env.NODE_ENV === "production",
-  prefix: "persistent-state:",
 }
 
 // OVERLOADS AND JSDOC
@@ -53,7 +43,7 @@ const defaultOptions: Options = {
  * @param {StorageType} [storageType="session"] - The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
  * @param {Partial<Options>} [options=defaultOptions] - Configuration options for the hook.
  * ---
- * @returns {[S, Dispatch<SetStateAction<S>,PurgeMethod]} The same array as returned by `React.useState` with the addition of a purge method.
+ * @returns {[S, Dispatch<SetStateAction<S>>,PurgeMethod]} The same array as returned by `React.useState` with the addition of a purge method.
  * ---
  * @description
  * This hook combines the functionality of `React.useState` with the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to provide
@@ -150,15 +140,12 @@ export function usePersistentState(
   options: Partial<Options> = defaultOptions,
 ) {
   const config: Options = { ...defaultOptions, ...options }
-  config.silent = config.verbose || config.silent // Disable silent mode if verbose is enabled
-
-  // Add prefix if missing (for backwards compatibility)
-  storageKey = storageKey.startsWith(config.prefix) ? storageKey : config.prefix + storageKey
+  const { verbose } = config // Used too much
 
   // Use React.useState internally
   const [value, setValue] = useState(() => {
     initialState = typeof initialState === "function" ? (initialState as () => unknown)() : initialState
-    return storageGet(storageType, storageKey, initialState, config.verbose) ?? initialState
+    return storageGet(storageType, storageKey, initialState, verbose) ?? initialState
   })
 
   const isMounted = useRef(false) // Remember if we are past first render
@@ -166,31 +153,38 @@ export function usePersistentState(
 
   // Initial one-time checks - all verbose
   useEffect(() => {
-    checkMissingStorageKey(storageKey, !config.silent) ||
-      checkStorageType(storageType, !config.silent) ||
-      checkWindow(!config.silent) ||
-      checkBrowserStorage(!config.silent)
+    checkMissingStorageKey(storageKey, verbose) ||
+      checkStorageType(storageType, verbose) ||
+      checkWindow(verbose) ||
+      checkBrowserStorage(verbose)
 
     shouldFallback.current = true
+    if (verbose) info("Initializing...", { storageKey, storageType, config })
+
+    // Update or remove value in storage
+    storageSet(storageType, storageKey, serializeValue(value, verbose), verbose)
   }, [])
 
   // Update storage on value change
   useEffect(() => {
     // Skip first render and undefined values
     if (!isMounted.current) isMounted.current = true
-    if (value === undefined) storageRemove(storageType, storageKey, config.verbose)
+    if (value === undefined) storageRemove(storageType, storageKey, verbose)
     if (shouldFallback.current || !isMounted.current || value === undefined) return
 
     // Serialize value once before saving and checking if serializable
-    const serializedValue = serializeValue(value)
-    if (!checkIfSerializable(serializedValue, !config.silent)) return
+    const serializedValue = serializeValue(value, verbose)
+    if (!checkIfSerializable(serializedValue, verbose)) return
 
     // Update or remove value in storage
-    storageSet(storageType, storageKey, serializedValue, config.verbose)
+    storageSet(storageType, storageKey, serializedValue, verbose)
   }, [value])
 
+  // Purge state from storage and optionally replace state
   const purgeValue = useCallback((newState?: unknown) => {
-    storageRemove(storageType, storageKey, config.verbose)
+    if (verbose) info("Purging storage...", { storageKey, storageType })
+
+    storageRemove(storageType, storageKey, verbose)
     if (newState) setValue(newState)
   }, [])
 
