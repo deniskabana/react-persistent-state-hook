@@ -1,10 +1,12 @@
 ## react-persistent-state-hook
 
-> React.useState() + BrowserStorage API persistence
+> React.useState() + BrowserStorage API that works as a drop-in replacement for React.useState() with zero configuration
 
 ```typescript
-const [isOpen, setIsOpen] = usePersistentState(false, "unique-key")
+const [options, setOptions] = usePersistentState({ per_page: 10 }, "unique-key")
 ```
+
+See [Roadmap](#roadmap) for future plans
 
 ---
 
@@ -23,12 +25,15 @@ const [isOpen, setIsOpen] = usePersistentState(false, "unique-key")
 
 - **Drop-in replacement** - for React's `useState` hook without changing functionality
 - **Zero configuration** - provide a key, optionally provide a storage type and you're done
-- **SSR optimized** - will behave exactly like `useState` if storage is not available
-- **No overhead** - 1 hook, 1 peer dependency - `React >= 16.8`
+- **Platform-agnostic** - will behave exactly like `useState` if BrowserStorage is not available
+- **No extra overhead** - 1 hook, 1 peer dependency - `React >= 16.8`
 - **TypeScript support** - fully typed, behaves exactly like React's `useState`
-- **Supports custom storage adapter** - compatible with any state management (coming soon...)
 
-Simplify your state management - now you don't need context, redux and other state managers to remember unimportant states like UI preferences, user settings, etc. - store them for the session or forever with this hook!
+_Coming soon_ 💡
+
+- Custom storage adapters (`config.storageAdapter`) - allows the use of redux, React Native state or any custom solution
+- React Native support - `AsyncStorage` API
+- and more... See [Roadmap](#roadmap)
 
 ---
 
@@ -45,27 +50,35 @@ npm i -S react-persistent-state-hook
 **2. Start coding!**
 
 ```typescript
-// Replace React.useState safely without functionality changing
-const [isOpen, setIsOpen] = usePersistentState(false)
-
-// Add a key to persist the state during this session and retrieve
-// an optional purge method to clear Storage for this key (without changing state)
-const [count, setCount, purgeCount] = usePersistentState(0, "myCountUniqueKey")
-
-// Works perfectly with function initializator and with local storage as well
-const [count, setCount, purgeCount] = usePersistentState(() => 0, "myCountUniqueKey", "local")
-
-// Fully typed usage with TypeScript works great as well
-const [user, setUser, clearUser] = usePersistentState<{ name: string }>(defaultUser, AppKeys.User, StorageType.Session)
+// Replace React.useState without breaking functionality
+const [count, setCount] = usePersistentState(0)
+const [count, setCount] = usePersistentState(() => 0)
 ```
 
-_More usage options and tutorials coming soon! (see Roadmap)_
+```typescript
+// Add a unique key to persist state - uses localStorage by default
+const [count, setCount] = usePersistentState(0, "unique-key")
+```
+
+> 💡 _Possible Redux replacement with zero configuration_ ☝️
+
+```typescript
+// Easy switching between localStorage and sessionStorage
+const [count, setCount] = usePersistentState(0, "unique-key", "local")
+```
+
+```typescript
+// First-class TypeScript support replicating React.useState types and overloads 🎉
+const [count, setCount] = usePersistentState<boolean>(0, Keys.Count)
+```
+
+_More usage options and tutorials coming soon! (see [Roadmap](#roadmap))_
 
 ---
 
-### Options
+### Options API
 
-Source: [usePersistentState.ts](./src/usePersistentState.ts)
+Source: [usePersistentState.ts](./src/usePersistentState.ts#L18)
 
 ```typescript
 /** Optional Options API for usePersistentState */
@@ -81,11 +94,24 @@ export type Options = Partial<{
 
 ### Roadmap
 
-- Add config key for conditional persistence - allow disabling storage usage with a config key
-- Add config key to swallow errors/warnings silently without logging to console
-- Add config key for custom serialize and deserialize functions to use with JSON.stringify and JSON.parse
-- Add config key for custom storage API adapters (`config.storageAdapter`) as a USP and major feature - allows users to use redux, custom states, API comm, etc.
+Current:
+
+- Add config key for custom serialize and deserialize functions to use instead JSON.stringify and JSON.parse
 - Add config key for resolution strategy when states are conflicting (i.e. different types or structure) - `merge`, `overwrite`, `throw`
 - Add storage versioning for when data structure changes (like redux-persist)
-- Write more examples & tutorials and document everything in this roadmap
-- Release 1.0.0 publicly
+- Write more examples, tutorials and document everything in this roadmap
+- Release 1.0.0 publicly and add to Awesome React Hooks 🎉
+
+After 1.0.0 release:
+
+- Implement storage adapters API (`config.storageAdapter`) as a major feature
+- Allow disabling storage usage with a config key (e.g. `persist: false`)
+
+Plans for v2:
+
+- Remove BrowserStorage as a core feature and implement storage adapters API
+- Add support for React Native - `AsyncStorage` API
+- Allow and prominently document custom hook implementation of `usePersistentState` with persistent config, etc. (e.g. `export const usePersistentState = createPersistentStateHook({ ...config })`)
+- Allow simplified usage `const [name, setName] = usePersistentState("John")`
+  - Implement default storage mechanism that uses the best available storage in any environment with a graceful fallback
+  - Implement automatic key-gen without user input _(discussion and help pending)_ - this allows "unsafe" usage without keys

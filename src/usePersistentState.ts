@@ -10,6 +10,9 @@ import {
 import { storageSet, storageGet, storageRemove } from "./storage"
 import { serializeValue } from "./utils"
 
+// TYPES AND OPTIONS
+// --------------------------------------------------
+
 export type StorageType = "local" | "session"
 
 /** Optional Options API for usePersistentState */
@@ -38,7 +41,7 @@ const defaultOptions: Required<Options> = {
  * @param storageKey - Unique key for BrowserStorage API
  * @param storageType - BrowserStorage API type
  * @default "session"
- * @param config - Configuration options
+ * @param options - Configuration options
  *
  * @description `React.useState` + BrowserStorage API for persistence
  * @link https://www.npmjs.com/package/react-persistent-state-hook
@@ -47,7 +50,7 @@ export function usePersistentState<S>(
   initialState: S | (() => S),
   storageKey?: string,
   storageType?: StorageType,
-  config?: Options,
+  options?: Options,
 ): [S, Dispatch<SetStateAction<S>>]
 
 /**
@@ -60,7 +63,7 @@ export function usePersistentState<S>(
  * @param storageKey - Unique key for BrowserStorage API; `undefined` or empty string will disable persistence
  * @param storageType - BrowserStorage API type
  * @default "session"
- * @param config - Configuration options
+ * @param options - Configuration options
  *
  * @description `React.useState` + BrowserStorage API for persistence
  * @link https://www.npmjs.com/package/react-persistent-state-hook
@@ -69,61 +72,53 @@ export function usePersistentState<S = undefined>(
   initialState: undefined,
   storageKey?: string,
   storageType?: StorageType,
-  config?: Options,
+  options?: Options,
 ): [S | undefined, Dispatch<SetStateAction<S | undefined>>]
 
-// HOOK CODE
+// USE PERSISTENT STATE HOOK
 // --------------------------------------------------
 
 export function usePersistentState(
   initialState: unknown,
   storageKey: string = "",
   storageType: StorageType = "session",
-  config: Options = defaultOptions,
+  options: Options = defaultOptions,
 ) {
-  // Initialize classic React state
+  options = { ...defaultOptions, ...options }
+  options.silent = options.verbose || options.silent // Disable silent mode if verbose is enabled
+
+  // Use React.useState internally
   const [value, setValue] = useState(() => {
-    // Execute state initializer if it's a function
     initialState = typeof initialState === "function" ? (initialState as () => unknown)() : initialState
-    return storageGet(storageType, storageKey, initialState) ?? initialState
+    return storageGet(storageType, storageKey, initialState, options.verbose) ?? initialState
   })
 
-  const isMounted = useRef(false) // Remember if we are past our first render
-  const shouldFallback = useRef(false) // Remember if we should fallback to useState
-
-  config = { ...defaultOptions, ...config }
+  const isMounted = useRef(false) // Remember if we are past first render
+  const shouldFallback = useRef(false) // Remember whether graceful fallback is necessary
 
   // Initial one-time checks - all verbose
   useEffect(() => {
-    checkMissingStorageKey(storageKey, !config.silent) ||
-      checkStorageType(storageType, !config.silent) ||
-      checkWindow(!config.silent) ||
-      checkBrowserStorage(!config.silent)
+    checkMissingStorageKey(storageKey, !options.silent) ||
+      checkStorageType(storageType, !options.silent) ||
+      checkWindow(!options.silent) ||
+      checkBrowserStorage(!options.silent)
 
     shouldFallback.current = true
   }, [])
 
+  // Update storage on value change
   useEffect(() => {
-    if (shouldFallback.current) return
+    // Skip first render and undefined values
+    if (!isMounted.current) isMounted.current = true
+    if (value === undefined) storageRemove(storageType, storageKey, options.verbose)
+    if (shouldFallback.current || !isMounted.current || value === undefined) return
 
-    // Skip first render
-    if (!isMounted.current) {
-      isMounted.current = true
-      return
-    }
-
-    // Undefined is not a JSON serializable value, cancel operation
-    if (value === undefined) {
-      storageRemove(storageType, storageKey)
-      return
-    }
-
-    // Serialize value before saving
+    // Serialize value once before saving and checking if serializable
     const serializedValue = serializeValue(value)
-    checkIfSerializable(serializedValue, !config?.silent) // Verbose when changing values
+    checkIfSerializable(serializedValue, !options.silent) // Verbose when changing values
 
     // Update or remove value in storage
-    storageSet(storageType, storageKey, serializedValue)
+    storageSet(storageType, storageKey, serializedValue, options.verbose)
   }, [value])
 
   // Return state management
