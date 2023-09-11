@@ -81,12 +81,10 @@ export type Options = Partial<{
 
 ### Roadmap
 
-- Add support for config API - `usePersistentState(initialState, key, sessionType, config?: PersistentStateConfig)`
-  - Add support for custom storage API - `config.storage` (allows replacing of BrowserStorage)
-  - Add conditional persistence - allow disabling storage usage with a config key
-  - Add config key to swallow errors/warnings silently without logging to console
-  - Add custom serialize and deserialize functions to use with JSON.stringify and JSON.parse
-- Add custom storage API adapters as a USP and major feature - allows users to use redux, custom states, API comm, etc.
+- Add conditional persistence - allow disabling storage usage with a config key
+- Add config key to swallow errors/warnings silently without logging to console
+- Add config key for custom serialize and deserialize functions to use with JSON.stringify and JSON.parse
+- Add config key for custom storage API adapters (`config.storageAdapter`) as a USP and major feature - allows users to use redux, custom states, API comm, etc.
 - Add storage versioning for when data structure changes (like redux-persist)
 - Write more examples & tutorials and document everything in this roadmap
 - Release 1.0.0 publicly
