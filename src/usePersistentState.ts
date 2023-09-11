@@ -8,7 +8,7 @@ import {
   checkWindow,
 } from "./utils/checkErrors"
 import { storageSet, storageGet, storageRemove } from "./utils/storage"
-import { serializeValue } from "./utils/utils"
+import { generateStorageKey, serializeValue } from "./utils/utils"
 import { info } from "./utils/console"
 
 // TYPES AND OPTIONS
@@ -25,10 +25,15 @@ export type Options = {
   /** Print all warnings and errors in console. Overrides `silent` option.
    *  @default false */
   verbose: boolean
+
+  /** A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
+   *  @default undefined */
+  storageKey: string | undefined
 }
 
 const defaultOptions: Options = {
   verbose: false,
+  storageKey: undefined,
 }
 
 // OVERLOADS AND JSDOC
@@ -39,7 +44,6 @@ const defaultOptions: Options = {
  * It allows you to persist the state value without any configuration in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API), such as `localStorage` or `sessionStorage`.
  * ---
  * @param {S | (() => S)} initialState - The initial state value or a function that returns it.
- * @param {string} storageKey - A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
  * @param {StorageType} [storageType="session"] - The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
  * @param {Partial<Options>} [options=defaultOptions] - Configuration options for the hook.
  * ---
@@ -77,7 +81,6 @@ const defaultOptions: Options = {
  */
 export function usePersistentState<S>(
   initialState: S | (() => S),
-  storageKey?: string,
   storageType?: StorageType,
   options?: Partial<Options>,
 ): [S, Dispatch<SetStateAction<S>>, PurgeMethod]
@@ -87,7 +90,6 @@ export function usePersistentState<S>(
  * It allows you to persist the state value without any configuration in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API), such as `localStorage` or `sessionStorage`.
  * ---
  * @param {undefined} initialState - The initial state value or a function that returns it.
- * @param {string} storageKey - A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
  * @param {StorageType} [storageType="session"] - The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
  * @param {Partial<Options>} [options=defaultOptions] - Configuration options for the hook.
  * ---
@@ -125,7 +127,6 @@ export function usePersistentState<S>(
  */
 export function usePersistentState<S = undefined>(
   initialState: undefined,
-  storageKey?: string,
   storageType?: StorageType,
   options?: Partial<Options>,
 ): [S | undefined, Dispatch<SetStateAction<S | undefined>>]
@@ -135,11 +136,11 @@ export function usePersistentState<S = undefined>(
 
 export function usePersistentState(
   initialState: unknown,
-  storageKey: string = "",
   storageType: StorageType = "session",
   options: Partial<Options> = defaultOptions,
 ) {
   const config: Options = { ...defaultOptions, ...options }
+  const storageKey = generateStorageKey(config, initialState)
   const { verbose } = config // Used too much
 
   // Use React.useState internally

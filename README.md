@@ -149,13 +149,17 @@ Breaking changes in the Options API or elsewhere in `react-persistent-state-hook
 ```typescript
 /** Options API to change behavior */
 export type Options = {
-  /** Print all warnings and errors in console.
+  /** Print all warnings and errors in console. Overrides `silent` option.
    *  @default false */
   verbose: boolean
+
+  /** A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
+   *  @default undefined */
+  storageKey: string | undefined
 }
 ```
 
-_See source: [`src/usePersistentState.ts:22`](./src/usePersistentState.ts#L22)_
+_See source: [`src/usePersistentState.ts:23`](./src/usePersistentState.ts#L23)_
 
 ---
 
