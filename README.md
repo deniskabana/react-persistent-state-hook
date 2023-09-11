@@ -1,9 +1,9 @@
-## react-persistent-state-hook
+# react-persistent-state-hook
 
-> React.useState() + BrowserStorage API that works as a drop-in replacement for React.useState() with zero configuration
+A React `useState()` replacement with built-in persistence BrowserStorage.
 
 ```typescript
-const [options, setOptions] = usePersistentState({ per_page: 10 }, "unique-key")
+const [name, setName] = usePersistentState("John", "unique-key")
 ```
 
 See [Roadmap](#roadmap) for future plans

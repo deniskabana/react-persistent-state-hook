@@ -14,7 +14,7 @@ export function storageGet(
   if (checkStorageAvailability(storageType, storageKey, verbose)) return value
 
   try {
-    const storedValue = getStorage(storageType)?.getItem(storageKey)
+    const storedValue = getStorage(storageType, verbose)?.getItem(storageKey)
     const parsedValue = storedValue?.length ? JSON.parse(storedValue) : value
     return parsedValue
   } catch (err) {
@@ -38,7 +38,7 @@ export function storageSet(storageType: StorageType, storageKey: string, value?:
     return
   }
 
-  getStorage(storageType)?.setItem(storageKey, value)
+  getStorage(storageType, verbose)?.setItem(storageKey, value)
 }
 
 /**
@@ -47,5 +47,5 @@ export function storageSet(storageType: StorageType, storageKey: string, value?:
 export function storageRemove(storageType: StorageType, storageKey: string, verbose = false): void {
   if (checkStorageAvailability(storageType, storageKey, verbose)) return
 
-  getStorage(storageType)?.removeItem(storageKey)
+  getStorage(storageType, verbose)?.removeItem(storageKey)
 }

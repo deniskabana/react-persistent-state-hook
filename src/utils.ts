@@ -16,10 +16,17 @@ export function checkStorageAvailability(storageType: StorageType, storageKey: s
 /**
  * Retrieve storage object from window.
  */
-export function getStorage(storageType: StorageType): Storage | undefined {
-  const storage = (window as any)[`${storageType}Storage`]
-  if (!storage) error("BrowserStorage is not available.")
-  return storage
+export function getStorage(storageType: StorageType | unknown, verbose?: boolean): Storage | void {
+  if (!checkWindow(verbose)) {
+    switch (storageType) {
+      case "local":
+        return window.localStorage
+      case "session":
+        return window.sessionStorage
+    }
+  }
+
+  if (verbose) error("BrowserStorage is not available.")
 }
 
 /**
