@@ -153,7 +153,7 @@ _See source: [`src/usePersistentState.ts:23`](./src/usePersistentState.ts#L23)_
 
 > _🚧 Work in progress; Expected finish 09/2023_
 
-- **Resolution Strategies**
+- **Resolution Strategies** ??? (discussion needed)
   - Introduce options for handling conflicts when states have different types or structures. Choose from `prefer-stored`, `prefer-new`, `throw-invalid-type`, `merge-prefer-new` and `merge-prefer-stored` (for objects, otherwise `prefer-stored` is used)
   - Default to `merge-prefer-new` to help with type migrations, this falls back to `prefer-stored` for non-objects.
   - Add config keys - `resolutionStrategy` and `resolutionMethod` - that can be used to override the default resolution behavior
