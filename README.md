@@ -2,6 +2,10 @@
 
 > React.useState() + BrowserStorage API persistence
 
+```typescript
+const [isOpen, setIsOpen] = usePersistentState(false, "unique-key")
+```
+
 ---
 
 <div align="center">
