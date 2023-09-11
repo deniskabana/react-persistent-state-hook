@@ -55,9 +55,9 @@ export function checkBrowserStorage(verbose = false): boolean {
  * Returns true if value is serializable, false if it's not.
  * **Provide a stringified value.**
  */
-export function checkIfSerializable(value: unknown, verbose = false): boolean {
+export function checkIfSerializable(value: string, verbose = false): boolean {
   try {
-    const isSerializable = value === JSON.parse(JSON.stringify(value))
+    const isSerializable = value === JSON.stringify(JSON.parse(value))
     if (!isSerializable && verbose) warn("Provided state value is not serializable.", value)
     return isSerializable
   } catch (err) {

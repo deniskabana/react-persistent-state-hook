@@ -17,14 +17,16 @@ export enum StorageType {
 
 export type StorageTypeArg = StorageType | "local" | "session" | string
 
-// Options for use configuration
-
 export type Options = Partial<{
+  /** Print to console all warnings and errors */
   verbose: boolean
+  /** Silently swallow all (even user) errors */
+  silent: boolean
 }>
 
 const defaultOptions: Options = {
   verbose: false,
+  silent: false,
 } as const
 
 // OVERLOADS
@@ -47,7 +49,7 @@ const defaultOptions: Options = {
  */
 export function usePersistentState<S>(
   initialState: S | (() => S),
-  storageKey: string,
+  storageKey?: string,
   storageType?: StorageTypeArg,
   config?: Options,
 ): [S, Dispatch<SetStateAction<S>>]
@@ -59,7 +61,7 @@ export function usePersistentState<S>(
  * > BrowserStorage API. To enable persistence, provide a unique `storageKey`.
  *
  * @param initialState - Initial state value
- * @param storageKey - Unique key for BrowserStorage API
+ * @param storageKey - Unique key for BrowserStorage API; `undefined` or empty string will disable persistence
  * @param storageType - BrowserStorage API type
  * @default "session"
  * @param config - Configuration options
@@ -69,7 +71,7 @@ export function usePersistentState<S>(
  */
 export function usePersistentState<S = undefined>(
   initialState: undefined,
-  storageKey: string,
+  storageKey?: string,
   storageType?: StorageTypeArg,
   config?: Options,
 ): [S | undefined, Dispatch<SetStateAction<S | undefined>>]
@@ -79,33 +81,32 @@ export function usePersistentState<S = undefined>(
 
 export function usePersistentState(
   initialState: unknown,
-  storageKey: string,
+  storageKey: string = "",
   storageType: StorageTypeArg = StorageType.Session,
   config: Options = defaultOptions,
 ) {
   // Initialize classic React state
-  const [value, setValue] = useState(() => storageGet(storageType, storageKey, initialState) ?? initialState)
+  const [value, setValue] = useState(() => {
+    // Execute state initializer if it's a function
+    initialState = typeof initialState === "function" ? (initialState as () => unknown)() : initialState
+    return storageGet(storageType, storageKey, initialState) ?? initialState
+  })
 
   const isMounted = useRef(false) // Remember if we are past our first render
   const shouldFallback = useRef(false) // Remember if we should fallback to useState
 
-  // Merge user options with defaults
-  // TODO: Consider using this API or keep it in reserve
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   config = { ...defaultOptions, ...config }
 
   // Initial one-time checks - all verbose
   useEffect(() => {
-    checkMissingStorageKey(storageKey, true) ||
-      checkStorageType(storageType, true) ||
-      checkWindow(true) ||
-      checkBrowserStorage(true)
+    checkMissingStorageKey(storageKey, !config.silent) ||
+      checkStorageType(storageType, !config.silent) ||
+      checkWindow(!config.silent) ||
+      checkBrowserStorage(!config.silent)
 
     shouldFallback.current = true
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (shouldFallback.current) return
 
@@ -123,11 +124,10 @@ export function usePersistentState(
 
     // Serialize value before saving
     const serializedValue = serializeValue(value)
-    checkIfSerializable(serializedValue, true) // Verbose
+    checkIfSerializable(serializedValue, !config.silent) // Verbose when changing values
 
     // Update or remove value in storage
     storageSet(storageType, storageKey, serializedValue)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
 
   // Return state management
