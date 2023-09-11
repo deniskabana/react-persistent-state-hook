@@ -1,6 +1,6 @@
 {
   "name": "react-persistent-state-hook",
-  "version": "0.10.1",
+  "version": "0.12.0",
   "description": "`React.useState` + BrowserStorage API for persistence",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",

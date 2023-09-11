@@ -36,10 +36,13 @@ const defaultOptions: Options = {
  * > A drop-in replacement for React's `useState` hook that persists value in
  * > BrowserStorage API. To enable persistence, provide a unique `storageKey`.
  *
- * @author Denis Kabana <denis.kabana@gmail.com>
+ * @param initialState - Initial state value
+ * @param storageKey - Unique key for BrowserStorage API
+ * @param storageType - BrowserStorage API type
+ * @default "session"
+ * @param config - Configuration options
+ *
  * @description `React.useState` + BrowserStorage API for persistence
- * @license MIT
- * @linkcode https://github.com/deniskabana/react-persistent-state-hook
  * @link https://www.npmjs.com/package/react-persistent-state-hook
  */
 export function usePersistentState<S>(
@@ -55,10 +58,13 @@ export function usePersistentState<S>(
  * > A drop-in replacement for React's `useState` hook that persists value in
  * > BrowserStorage API. To enable persistence, provide a unique `storageKey`.
  *
- * @author Denis Kabana <denis.kabana@gmail.com>
+ * @param initialState - Initial state value
+ * @param storageKey - Unique key for BrowserStorage API
+ * @param storageType - BrowserStorage API type
+ * @default "session"
+ * @param config - Configuration options
+ *
  * @description `React.useState` + BrowserStorage API for persistence
- * @license MIT
- * @linkcode https://github.com/deniskabana/react-persistent-state-hook
  * @link https://www.npmjs.com/package/react-persistent-state-hook
  */
 export function usePersistentState<S = undefined>(
@@ -74,7 +80,7 @@ export function usePersistentState<S = undefined>(
 export function usePersistentState(
   initialState: unknown,
   storageKey: string,
-  storageType: StorageTypeArg = StorageType.Local,
+  storageType: StorageTypeArg = StorageType.Session,
   config: Options = defaultOptions,
 ) {
   // Initialize classic React state
