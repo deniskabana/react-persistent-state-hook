@@ -63,9 +63,23 @@ _More usage options and tutorials coming soon! (see Roadmap)_
 
 ---
 
+### Options
+
+Source: [usePersistentState.ts](./src/usePersistentState.ts)
+
+```typescript
+export type Options = Partial<{
+  /** Print to console all warnings and errors */
+  verbose: boolean
+  /** Silently swallow all (even user) errors */
+  silent: boolean
+}>
+```
+
+---
+
 ### Roadmap
 
-- Add a third return - option to clear storage for a key
 - Add support for config API - `usePersistentState(initialState, key, sessionType, config?: PersistentStateConfig)`
   - Add support for custom storage API - `config.storage` (allows replacing of BrowserStorage)
   - Add conditional persistence - allow disabling storage usage with a config key
