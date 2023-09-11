@@ -12,9 +12,9 @@
 [![Version](https://img.shields.io/npm/v/react-persistent-state-hook?style=for-the-badge)](https://www.npmjs.com/package/react-persistent-state-hook)
 [![status](https://img.shields.io/badge/status-production_ready-green?style=for-the-badge)](https://www.npmjs.com/package/react-persistent-state-hook)
 
-</div>
-
 💡🧠 A React `useState()` replacement with built-in persistence with [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API). First-class TypeScript support 💪
+
+</div>
 
 ```bash
 yarn add react-persistent-state-hook # or different package manager
@@ -34,6 +34,7 @@ const [name, setName] = usePersistentState("John", "unique-key")
 2. [Usage](#usage)
 3. [Options API](#options-api)
 4. [Roadmap](#roadmap)
+5. Contributing (coming soon)
 
 ---
 
@@ -57,7 +58,7 @@ const [name, setName] = usePersistentState("John", "unique-key")
 
    > `usePersistentState` gracefully handles scenarios where Web Storage is not available, behaving exactly like `useState`.
 
-5. 📭 **Minimal Dependencies**:
+5. 📭 **No Dependencies**:
 
    > Keep your project lightweight with just one hook and one peer dependency (`react >= 16.8`). See [minzipped size](#react-persistent-state-hook) for details.
 
@@ -135,18 +136,7 @@ const [tableUxPref, setTableUxPref] = usePersistentState(
 )
 ```
 
-Function signature for better understanding - this overload is used when `initialValue` is defined:
-
-```typescript
-usePersistentState<S>(
-  initialState: S | (() => S),
-  storageKey?: string,
-  storageType?: StorageType,
-  options?: Options,
-): [S, Dispatch<SetStateAction<S>>, PurgeMethod]
-```
-
-_More usage options and tutorials coming soon! (see [Roadmap](#roadmap))_
+_More usage options and tutorials coming soon!_
 
 ---
 
