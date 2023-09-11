@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import type { Dispatch, SetStateAction } from "react"
 import {
   checkBrowserStorage,
@@ -13,60 +13,119 @@ import { serializeValue } from "./utils"
 // TYPES AND OPTIONS
 // --------------------------------------------------
 
+/** Purge state from storage and by default also current state. */
+export type PurgeMethod = (newState?: unknown) => void
+
+/** Version `<=2` only supports [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API). */
 export type StorageType = "local" | "session"
 
-/** Optional Options API for usePersistentState */
+/** Options API to change behavior */
 export type Options = Partial<{
-  /** Print to console all warnings and errors. **Default**: `false` */
-  verbose: boolean
-  /** Silently swallow all (even user) errors. **Default**: `false` */
+  /** Silently swallow all (even user) errors.
+   *  @default process.env.NODE_ENV === "production" */
   silent: boolean
+
+  /** Print all warnings and errors in console. Overrides `silent` option.
+   *  @default false */
+  verbose: boolean
 }>
 
 const defaultOptions: Required<Options> = {
   verbose: false,
-  silent: false,
+  silent: process.env.NODE_ENV === "production",
 } as const
 
-// OVERLOADS
+// OVERLOADS AND JSDOC
 // --------------------------------------------------
 
 /**
- * > #### usePersistentState
+ * `usePersistentState` is a custom React hook that provides a drop-in replacement for `React.useState`.
+ * It allows you to persist the state value without any configuration in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API), such as `localStorage` or `sessionStorage`.
+ * ---
+ * @param {S | (() => S)} initialState - The initial state value or a function that returns it.
+ * @param {string} storageKey - A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
+ * @param {StorageType} [storageType="session"] - The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
+ * @param {Options} [options] - Configuration options for the hook.
+ * ---
+ * @returns {[S, Dispatch<SetStateAction<S>,PurgeMethod]} The same array as returned by `React.useState` with the addition of a purge method.
+ * ---
+ * @description
+ * This hook combines the functionality of `React.useState` with the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to provide
+ * persistence for your state values across page refreshes and browser sessions.
+ * It can be particularly useful for maintaining user preferences or form data.
+ * ---
+ * @see [npm package](https://www.npmjs.com/package/react-persistent-state-hook) `react-persistent-state-hook`
+ * @link [github.com/deniskabana/react-persistent-state-hook](https://github.com/deniskabana/react-persistent-state-hook)
+ * ---
+ * @example
+ * ```ts
+ * // Replace React.useState without breaking functionality
+ * const [count, setCount] = usePersistentState(0)
+ * const [count, setCount] = usePersistentState(() => 0)
  *
- * > A drop-in replacement for React's `useState` hook that persists value in
- * > BrowserStorage API. To enable persistence, provide a unique `storageKey`.
+ * // Add a unique key to persist state - uses sessionStorage by default
+ * const [count, setCount] = usePersistentState(0, "unique-key")
+ * // 💡 Possible Redux replacement with zero configuration (for small apps and UI options) ☝️
  *
- * @param initialState - Initial state value
- * @param storageKey - Unique key for BrowserStorage API
- * @param storageType - BrowserStorage API type
- * @default "session"
- * @param options - Configuration options
+ * // Easy switching between localStorage and sessionStorage
+ * const [count, setCount] = usePersistentState(0, "unique-key", "local")
  *
- * @description `React.useState` + BrowserStorage API for persistence
- * @link https://www.npmjs.com/package/react-persistent-state-hook
+ * // Configurable with options API
+ * const [count, setCount] = usePersistentState(0, "unique-key", { verbose: true })
+ * ```
+ * ---
+ * @typedef {typeof usePersistentState} usePersistentState - Has 2 overloads.
+ * ```ts
+ * <S>(initialState: S | (() => S), storageKey?: string, storageType?: StorageType, options?: Options) => [S, Dispatch<SetStateAction<S>>, PurgeMethod]
+ * ```
  */
 export function usePersistentState<S>(
   initialState: S | (() => S),
   storageKey?: string,
   storageType?: StorageType,
   options?: Options,
-): [S, Dispatch<SetStateAction<S>>]
+): [S, Dispatch<SetStateAction<S>>, PurgeMethod]
 
 /**
- * > #### usePersistentState
+ * `usePersistentState` is a custom React hook that provides a drop-in replacement for `React.useState`.
+ * It allows you to persist the state value without any configuration in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API), such as `localStorage` or `sessionStorage`.
+ * ---
+ * @param {undefined} initialState - The initial state value or a function that returns it.
+ * @param {string} storageKey - A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
+ * @param {StorageType} [storageType="session"] - The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
+ * @param {Options} [options] - Configuration options for the hook.
+ * ---
+ * @returns {[S | undefined, Dispatch<SetStateAction<S | undefined>>,PurgeMethod]} The same array as returned by `React.useState` with the addition of a purge method.
+ * ---
+ * @description
+ * This hook combines the functionality of `React.useState` with the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to provide
+ * persistence for your state values across page refreshes and browser sessions.
+ * It can be particularly useful for maintaining user preferences or form data.
+ * ---
+ * @see react-persistent-state-hook [npm package](https://www.npmjs.com/package/react-persistent-state-hook)
+ * @link [github.com/deniskabana/react-persistent-state-hook](https://github.com/deniskabana/react-persistent-state-hook)
+ * ---
+ * @example
+ * ```ts
+ * // Replace React.useState without breaking functionality
+ * const [count, setCount] = usePersistentState(0)
+ * const [count, setCount] = usePersistentState(() => 0)
  *
- * > A drop-in replacement for React's `useState` hook that persists value in
- * > BrowserStorage API. To enable persistence, provide a unique `storageKey`.
+ * // Add a unique key to persist state - uses sessionStorage by default
+ * const [count, setCount] = usePersistentState(0, "unique-key")
+ * // 💡 Possible Redux replacement with zero configuration (for small apps and UI options) ☝️
  *
- * @param initialState - Initial state value
- * @param storageKey - Unique key for BrowserStorage API; `undefined` or empty string will disable persistence
- * @param storageType - BrowserStorage API type
- * @default "session"
- * @param options - Configuration options
+ * // Easy switching between localStorage and sessionStorage
+ * const [count, setCount] = usePersistentState(0, "unique-key", "local")
  *
- * @description `React.useState` + BrowserStorage API for persistence
- * @link https://www.npmjs.com/package/react-persistent-state-hook
+ * // Configurable with options API
+ * const [count, setCount] = usePersistentState(0, "unique-key", { verbose: true })
+ * ```
+ * ---
+ * @typedef {typeof usePersistentState} usePersistentState - Has 2 overloads.
+ * ```ts
+ * <S = undefined>(initialState: undefined, storageKey?: string, storageType?: StorageType, options?: Options) => [S | undefined, Dispatch<SetStateAction<S | undefined>>, PurgeMethod]
+ * ```
  */
 export function usePersistentState<S = undefined>(
   initialState: undefined,
@@ -121,6 +180,11 @@ export function usePersistentState(
     storageSet(storageType, storageKey, serializedValue, options.verbose)
   }, [value])
 
+  const purgeValue = useCallback((newState?: unknown) => {
+    storageRemove(storageType, storageKey, options.verbose)
+    if (newState) setValue(newState)
+  }, [])
+
   // Return state management
-  return [value, setValue]
+  return [value, setValue, purgeValue]
 }

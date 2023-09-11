@@ -1,6 +1,6 @@
 # react-persistent-state-hook
 
-A React `useState()` replacement with built-in persistence BrowserStorage.
+A React `useState()` replacement with built-in persistence with [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
 
 ```typescript
 const [name, setName] = usePersistentState("John", "unique-key")
@@ -25,7 +25,7 @@ See [Roadmap](#roadmap) for future plans
 
 - **Drop-in replacement** - for React's `useState` hook without changing functionality
 - **Zero configuration** - provide a key, optionally provide a storage type and you're done
-- **Platform-agnostic** - will behave exactly like `useState` if BrowserStorage is not available
+- **Platform-agnostic** - will behave exactly like `useState` if Web Storage API is not available
 - **No extra overhead** - 1 hook, 1 peer dependency - `React >= 16.8`
 - **TypeScript support** - fully typed, behaves exactly like React's `useState`
 
@@ -60,7 +60,7 @@ const [count, setCount] = usePersistentState(() => 0)
 const [count, setCount] = usePersistentState(0, "unique-key")
 ```
 
-> 💡 _Possible Redux replacement with zero configuration_ ☝️
+> 💡 Possible Redux replacement with zero configuration (for small apps and UI options) ☝️
 
 ```typescript
 // Easy switching between localStorage and sessionStorage
@@ -72,23 +72,31 @@ const [count, setCount] = usePersistentState(0, "unique-key", "local")
 const [count, setCount] = usePersistentState<boolean>(0, Keys.Count)
 ```
 
+```typescript
+// Configurable with options API
+const [count, setCount] = usePersistentState(0, "unique-key", { verbose: true })
+```
+
 _More usage options and tutorials coming soon! (see [Roadmap](#roadmap))_
 
 ---
 
 ### Options API
 
-Source: [usePersistentState.ts](./src/usePersistentState.ts#L18)
-
 ```typescript
-/** Optional Options API for usePersistentState */
+/** Options API to change behavior */
 export type Options = Partial<{
-  /** Print to console all warnings and errors. **Default**: `false` */
-  verbose: boolean
-  /** Silently swallow all (even user) errors. **Default**: `false` */
+  /** Silently swallow all (even user) errors.
+   *  @default process.env.NODE_ENV === "production" */
   silent: boolean
+
+  /** Print all warnings and errors in console. Overrides `silent` option.
+   *  @default false */
+  verbose: boolean
 }>
 ```
+
+_Source: [usePersistentState.ts:18](./src/usePersistentState.ts#L18)_
 
 ---
 
@@ -109,7 +117,7 @@ After 1.0.0 release:
 
 Plans for v2:
 
-- Remove BrowserStorage as a core feature and implement storage adapters API
+- Remove Web Storage API as a core feature and implement storage adapters API
 - Add support for React Native - `AsyncStorage` API
 - Allow and prominently document custom hook implementation of `usePersistentState` with persistent config, etc. (e.g. `export const usePersistentState = createPersistentStateHook({ ...config })`)
 - Allow simplified usage `const [name, setName] = usePersistentState("John")`
