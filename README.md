@@ -30,43 +30,43 @@ See [Roadmap](#roadmap) for future plans or read further to learn more about thi
 
 **`usePersistentState` offers a range of features that enhance and replace React's `useState()` method:**
 
-1. **Seamless Integration**:
+1. 💀 **Dead-simple Integration**:
 
    > A drop-in replacement for React's `useState` hook without breaking functionality.
 
-2. **Data Persistence**:
+2. 🧠 **Data Persistence**:
 
    > Store state values in the Web Storage API (`localStorage` or `sessionStorage`). Until version 2, we only support Web Storage API as a core feature.
 
-3. **Zero Configuration**:
+3. 🐣 **Zero Configuration**:
 
    > Provide a unique `storageKey` to any state you want to persist. Optionally, configure storage type and other options.
 
-4. **Platform-Agnostic**:
+4. ♻️ **Platform-Agnostic**:
 
    > `usePersistentState` gracefully handles scenarios where Web Storage is not available, behaving exactly like `useState`.
 
-5. **Minimal Dependencies**:
+5. 📭 **Minimal Dependencies**:
 
    > Keep your project lightweight with just one hook and one peer dependency (`react >= 16.8`). See [minzipped size](#react-persistent-state-hook) for details.
 
-6. **TypeScript Support**:
+6. 🧑‍💻 **First-class TypeScript Support**:
 
    > Fully typed with TypeScript, providing the same type support as React's `useState`.
 
-7. **Coming Soon 💡 - Custom Storage Adapters**:
+7. Coming Soon - **Custom Storage Adapters**:
 
    > Configure custom storage adapters, allowing integration with libraries like Redux, React Native state, or any custom storage solution.
 
-8. **Coming Soon 💡 - React Native Support**:
+8. Coming Soon - **React Native Support**:
 
    > Extend the benefits of state persistence to React Native projects with support for the `AsyncStorage` API.
 
-9. **Roadmap for Continuous Improvement**:
+9. 🚧 **Roadmap for Continuous Improvement**:
 
    > Our roadmap outlines upcoming features and enhancements, ensuring your state management needs are met.
 
-10. **Documentation and Tutorials**:
+10. 📚 **Documentation and Tutorials**:
     > As we grow, expect more usage options, tutorials, and comprehensive documentation to make integration even smoother.
 
 We're committed to delivering a minimal and flexible solution for state management and persistence in React applications. Join us on this journey by contributing! 🚀
@@ -171,7 +171,7 @@ _See source: [`src/usePersistentState.ts:22`](./src/usePersistentState.ts#L22)_
 - **Resolution Strategies**
   - Introduce options for handling conflicts when states have different types or structures. Choose from `prefer-stored`, `prefer-new`, `throw-invalid-type`, `merge-prefer-new` and `merge-prefer-stored` (for objects, otherwise `prefer-stored` is used)
   - Default to `merge-prefer-new` to help with type migrations, this falls back to `prefer-stored` for non-objects.
-  - Add a config key - `resolutionStrategy` - that can be used to override the default resolution strategy for a specific state
+  - Add config keys - `resolutionStrategy` and `resolutionMethod` - that can be used to override the default resolution behavior
 - **Generate Hook with Static Config**
   - Allow and prominently document custom hook implementation of `usePersistentState` with persistent config - `export const usePersistentState = createPersistentStateHook({ ...config })`
 - **Conditional persistence**
