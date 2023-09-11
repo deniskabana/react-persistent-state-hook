@@ -21,10 +21,8 @@ yarn add react-persistent-state-hook # or different package manager
 ```
 
 ```typescript
-const [name, setName] = usePersistentState("John", "unique-key")
+const [name, setName] = usePersistentState("John") // It just works 🎉
 ```
-
-[Start a new issue](https://github.com/deniskabana/react-persistent-state-hook/issues) whenever you have any questions, problems or suggestions! Or feel free to [open a pull request](https://github.com/deniskabana/react-persistent-state-hook/pulls) if you want to contribute. To increase the speed of getting your PR merged, please open an issue first to discuss your idea.
 
 ---
 
@@ -34,7 +32,7 @@ const [name, setName] = usePersistentState("John", "unique-key")
 2. [Usage](#usage)
 3. [Options API](#options-api)
 4. [Roadmap](#roadmap)
-5. Contributing (coming soon)
+5. [Contributing](#contributing)
 
 ---
 
@@ -42,44 +40,41 @@ const [name, setName] = usePersistentState("John", "unique-key")
 
 **`usePersistentState` offers a range of features that enhance and replace React's `useState()` method:**
 
-1. 💀 **Dead-simple Integration**:
+1. 🐣 **Plug'n'play with Zero Configuration**:
 
-   > A drop-in replacement for React's `useState` hook without breaking functionality.
+   - A drop-in replacement for React's `useState` hook without breaking your code or changing your workflow. Provide a unique key to persist state values more reliably.
 
 2. 🧠 **Data Persistence**:
 
-   > Store state values in the Web Storage API (`localStorage` or `sessionStorage`). Until version 2, we only support Web Storage API as a core feature.
+   - Store state values in `localStorage` or `sessionStorage`. Until version 2, we only support Web Storage API, but more are coming.
 
-3. 🐣 **Zero Configuration**:
+3. ♻️ **Platform-Agnostic**:
 
-   > Provide a unique `storageKey` to any state you want to persist. Optionally, configure storage type and other options.
+   - `usePersistentState` gracefully handles scenarios where Web Storage is not available, behaving exactly like `useState`.
 
-4. ♻️ **Platform-Agnostic**:
+4. 📭 **No Dependencies**:
 
-   > `usePersistentState` gracefully handles scenarios where Web Storage is not available, behaving exactly like `useState`.
+   - Keep your project light - no dependencies and a single peer dependency (`react >= 16.8`).
 
-5. 📭 **No Dependencies**:
+5. 🧑‍💻 **First-class TypeScript Support**:
 
-   > Keep your project lightweight with just one hook and one peer dependency (`react >= 16.8`). See [minzipped size](#react-persistent-state-hook) for details.
+   - Fully typed with TypeScript, providing the same type support as React's `useState` (including overloads).
 
-6. 🧑‍💻 **First-class TypeScript Support**:
+6. 🚧 **Roadmap for Continuous Improvement**:
 
-   > Fully typed with TypeScript, providing the same type support as React's `useState`.
+   - Our roadmap outlines upcoming features and enhancements, ensuring your state management needs are met.
 
-7. Coming Soon - **Custom Storage Adapters**:
+7. 📚 **Documentation and Tutorials**:
 
-   > Configure custom storage adapters, allowing integration with libraries like Redux, React Native state, or any custom storage solution.
+   - Straight-forward readme with examples and comprehensive JSDoc annotations for the hook and its options (all types are exported).
 
-8. Coming Soon - **React Native Support**:
+8. Coming Soon - **Custom Storage Adapters**:
 
-   > Extend the benefits of state persistence to React Native projects with support for the `AsyncStorage` API.
+   - Allowing integration with libraries like Redux, React Native state APIs, or custom storage solutions.
 
-9. 🚧 **Roadmap for Continuous Improvement**:
+9. Coming Soon - **React Native Support**:
 
-   > Our roadmap outlines upcoming features and enhancements, ensuring your state management needs are met.
-
-10. 📚 **Documentation and Tutorials**:
-    > As we grow, expect more usage options, tutorials, and comprehensive documentation to make integration even smoother.
+   - Extend the benefits of state persistence to React Native projects by implementing a first-class `AsyncStorage` API adapter.
 
 We're committed to delivering a minimal and flexible solution for state management and persistence in React applications. Join us on this journey by contributing! 🚀
 
@@ -95,48 +90,39 @@ Start by importing the hook:
 import { usePersistentState } from "react-persistent-state-hook"
 ```
 
-Basic usage
+#### Basic usage
 
 ```typescript
-// Replace React.useState without breaking functionality
+// Replace React.useState and enjoy persistence with localStorage 🎉
 const [count, setCount] = usePersistentState(0)
 const [count, setCount] = usePersistentState(() => 0)
 
-// Add a unique key to persist state - uses sessionStorage by default
-const [count, setCount] = usePersistentState(0, "unique-key")
+// Add a unique key for more reliable persistance
+const [count, setCount] = usePersistentState(0, "local", { storageKey: "unique-key" })
 ```
 
 > 💡 Possible state management replacement (like context or Redux) with zero configuration in situations where data loss is acceptable (like UI preferences). ☝️
 
-Advanced usage
+#### Advanced usage
 
 ```typescript
 // Easy switching between localStorage and sessionStorage
-const [count, setCount] = usePersistentState(0, "unique-key", "local")
-```
-
-```typescript
-// First-class TypeScript support replicating React.useState types and overloads 🎉
-const [count, setCount] = usePersistentState<boolean>(0, Keys.Count)
+const [count, setCount] = usePersistentState(0, "session")
 ```
 
 ```typescript
 // Configurable with options API
-const [count, setCount] = usePersistentState(0, "unique-key", { verbose: true })
+const [count, setCount] = usePersistentState(0, "session", { verbose: true })
 ```
 
 ```typescript
-// Real world usage example:
-const [theme, setTheme] = usePersistentState<Theme>(UIThemes.Light, StorageKeys.Theme, "local")
-// or:
-const [tableUxPref, setTableUxPref] = usePersistentState(
-  { showHeader: true, showFooter: true, perPage: 15, compact: true, fixedHeader: true },
-  StorageKeys.TableUxPref,
-  "local",
-)
-```
+// A bit more robust example
+const DEFAULT_UX_PREF = { perPage: 15, compact: true, fixedHeader: true }
 
-_More usage options and tutorials coming soon!_
+const [tableUxPref, setTableUxPref] = usePersistentState<typeof DEFAULT_UX_PREF>({ ...DEFAULT_UX_PREF }, "local", {
+  storageKey: "tableUxPref",
+})
+```
 
 ---
 
@@ -205,3 +191,11 @@ _See source: [`src/usePersistentState.ts:23`](./src/usePersistentState.ts#L23)_
   - Making it even easier with simplified usage. Just `const [name, setName] = usePersistentState("John")`, and we'll handle the rest based on your environment. It's like magic ✨ as long as you don't care about data safety!
   - Introduce a **breaking change** of the default types of storage 🚨
   - Implement automatic key-gen without any user input to make default storage automagically _(help potentially needed)_ work 🧑‍🔬
+
+---
+
+### Contributing
+
+[Start a new issue](https://github.com/deniskabana/react-persistent-state-hook/issues) whenever you have any questions, problems or suggestions! Or feel free to [open a pull request](https://github.com/deniskabana/react-persistent-state-hook/pulls) if you want to contribute. To increase the speed of getting your PR merged, please open an issue first to discuss your idea.
+
+More info coming soon.
