@@ -29,12 +29,7 @@ export function checkStorageType(storageType: unknown, verbose = false): boolean
  * Returns true if running in a non-browser environment, false if running in a browser environment.
  */
 export function checkWindow(verbose = false): boolean {
-  if (
-    typeof window === "undefined" ||
-    typeof window !== "object" ||
-    !window?.document ||
-    typeof document === "undefined"
-  ) {
+  if (typeof window === "undefined") {
     if (verbose) warn("You are running in a non-browser environment. Resorted to `React.useState`.")
     return true
   } else {
@@ -60,10 +55,10 @@ export function checkBrowserStorage(verbose = false): boolean {
  * Returns true if value is serializable, false if it's not.
  * **Provide a stringified value.**
  */
-export function checkIfSerializable(value: string, verbose = false): boolean {
+export function checkIfSerializable(value: unknown, verbose = false): boolean {
   try {
-    const isSerializable = value === JSON.stringify(JSON.parse(value))
-    if (!isSerializable) warn("Provided state value is not serializable.", value)
+    const isSerializable = value === JSON.parse(JSON.stringify(value))
+    if (!isSerializable && verbose) warn("Provided state value is not serializable.", value)
     return isSerializable
   } catch (err) {
     if (verbose)

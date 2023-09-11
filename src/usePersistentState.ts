@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import type { Dispatch, SetStateAction } from "react"
 import {
   checkBrowserStorage,
@@ -7,14 +7,15 @@ import {
   checkStorageType,
   checkWindow,
 } from "./checkErrors"
-import { storageSet, serializeValue, storageGet, storageRemove } from "./storage"
+import { storageSet, storageGet, storageRemove } from "./storage"
+import { serializeValue } from "./utils"
 
 export enum StorageType {
   Local = "local",
   Session = "session",
 }
 
-export type StorageTypeArg = StorageType | string
+export type StorageTypeArg = StorageType | "local" | "session" | string
 
 // Options for use configuration
 
@@ -79,20 +80,13 @@ export function usePersistentState(
   // Initialize classic React state
   const [value, setValue] = useState(() => storageGet(storageType, storageKey, initialState) ?? initialState)
 
-  // Merge user options with defaults
-  config = { ...defaultOptions, ...config }
+  const isMounted = useRef(false) // Remember if we are past our first render
+  const shouldFallback = useRef(false) // Remember if we should fallback to useState
 
-  // If set to verbose, log initialization
-  if (config.verbose) {
-    // eslint-disable-next-line no-console
-    console.log("usePersistentState / init", {
-      initialState,
-      storageKey,
-      storageType,
-      config,
-      value,
-    })
-  }
+  // Merge user options with defaults
+  // TODO: Consider using this API or keep it in reserve
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  config = { ...defaultOptions, ...config }
 
   // Initial one-time checks - all verbose
   useEffect(() => {
@@ -100,22 +94,19 @@ export function usePersistentState(
       checkStorageType(storageType, true) ||
       checkWindow(true) ||
       checkBrowserStorage(true)
+
+    shouldFallback.current = true
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // This will not be called intentionally if initial checks won't pass
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    // If set to verbose, log every change
-    if (config.verbose) {
-      // eslint-disable-next-line no-console
-      console.log("usePersistentState / valueChange", {
-        initialState,
-        storageKey,
-        storageType,
-        config,
-        value,
-      })
+    if (shouldFallback.current) return
+
+    // Skip first render
+    if (!isMounted.current) {
+      isMounted.current = true
+      return
     }
 
     // Undefined is not a JSON serializable value, cancel operation
@@ -128,7 +119,7 @@ export function usePersistentState(
     const serializedValue = serializeValue(value)
     checkIfSerializable(serializedValue, true) // Verbose
 
-    // Update or remove
+    // Update or remove value in storage
     storageSet(storageType, storageKey, serializedValue)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
