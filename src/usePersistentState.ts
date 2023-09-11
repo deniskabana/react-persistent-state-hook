@@ -12,12 +12,14 @@ import { serializeValue } from "./utils"
 
 export type StorageType = "local" | "session"
 
-export type Options = Partial<{
-  /** Print to console all warnings and errors */
-  verbose: boolean
-  /** Silently swallow all (even user) errors */
-  silent: boolean
-}>
+export type Options =
+  | undefined
+  | Partial<{
+      /** Print to console all warnings and errors. **Default**: `false` */
+      verbose: boolean
+      /** Silently swallow all (even user) errors. **Default**: `false` */
+      silent: boolean
+    }>
 
 const defaultOptions: Options = {
   verbose: false,

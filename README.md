@@ -68,12 +68,14 @@ _More usage options and tutorials coming soon! (see Roadmap)_
 Source: [usePersistentState.ts](./src/usePersistentState.ts)
 
 ```typescript
-export type Options = Partial<{
-  /** Print to console all warnings and errors */
-  verbose: boolean
-  /** Silently swallow all (even user) errors */
-  silent: boolean
-}>
+export type Options =
+  | undefined
+  | Partial<{
+      /** Print to console all warnings and errors. **Default**: `false` */
+      verbose: boolean
+      /** Silently swallow all (even user) errors. **Default**: `false` */
+      silent: boolean
+    }>
 ```
 
 ---
