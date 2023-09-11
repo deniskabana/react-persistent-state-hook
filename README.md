@@ -56,7 +56,7 @@ const [count, setCount] = usePersistentState(() => 0)
 ```
 
 ```typescript
-// Add a unique key to persist state - uses localStorage by default
+// Add a unique key to persist state - uses sessionStorage by default
 const [count, setCount] = usePersistentState(0, "unique-key")
 ```
 
