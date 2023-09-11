@@ -1,4 +1,8 @@
+<div align="center">
+
 # react-persistent-state-hook
+
+</div>
 
 <div align="center">
 
@@ -20,9 +24,16 @@ yarn add react-persistent-state-hook # or different package manager
 const [name, setName] = usePersistentState("John", "unique-key")
 ```
 
-See [Roadmap](#roadmap) for future plans or read further to learn more about this magic 🧙‍♀️.
-
 [Start a new issue](https://github.com/deniskabana/react-persistent-state-hook/issues) whenever you have any questions, problems or suggestions! Or feel free to [open a pull request](https://github.com/deniskabana/react-persistent-state-hook/pulls) if you want to contribute. To increase the speed of getting your PR merged, please open an issue first to discuss your idea.
+
+---
+
+**Table of contents:**
+
+1. [Key Features](#key-features)
+2. [Usage](#usage)
+3. [Options API](#options-api)
+4. [Roadmap](#roadmap)
 
 ---
 
@@ -147,7 +158,7 @@ Breaking changes in the Options API or elsewhere in `react-persistent-state-hook
 
 ```typescript
 /** Options API to change behavior */
-export type Options = Partial<{
+export type Options = {
   /** Silently swallow all (even user) errors.
    *  @default process.env.NODE_ENV === "production" */
   silent: boolean
@@ -155,7 +166,12 @@ export type Options = Partial<{
   /** Print all warnings and errors in console. Overrides `silent` option.
    *  @default false */
   verbose: boolean
-}>
+
+  /** Prefix is used to prevent key collisions in storage.
+   *  @pattern `/[0-9A-Za-z-_@/]+:/` (similar to npm package names)
+   *  @default "persistent-state:" */
+  prefix: string
+}
 ```
 
 _See source: [`src/usePersistentState.ts:22`](./src/usePersistentState.ts#L22)_
@@ -177,15 +193,19 @@ _See source: [`src/usePersistentState.ts:22`](./src/usePersistentState.ts#L22)_
 - **Conditional persistence**
   - Add a config key - `persist: false` - that can conditionally disable persistence for a specific state
 - **1.0.0 Release 🎉**
+  - Freeze the `main` branch and move development to `dev-v1.x` branches, that eventually get merged into `main` as PRs. We need to act responsible 👨‍🏫
 
 #### Planned Improvements (`v1.x` Releases):
 
 > _📝 To-do; Expected finish 10/2023_
 
-- **Storage Versioning support**
-  - Add storage versioning for when data structure changes (like redux-persist)
+- **Even Smaller Footprint**
+  - Reduce bundle size as much as possible, for example by making exported JSDoc comments shorter (and only exporting main hook function JSDoc once - overload through union types)
 - **Custom Serialization and Deserialization Functions**
   - Add the ability to configure your own serialization and deserialization functions instead of relying on `JSON.stringify` and `JSON.parse`
+- **Open-source Friendliness**
+  - Add a `CONTRIBUTING.md` file to make it easier for contributors to get started, link to it from `README.md`
+  - Provide a solid tutorial for contributors, set up PR template, issue template, etc.
 
 #### Plans for Version 2:
 

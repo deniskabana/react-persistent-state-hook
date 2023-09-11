@@ -20,7 +20,7 @@ export type PurgeMethod = (newState?: unknown) => void
 export type StorageType = "local" | "session"
 
 /** Options API to change behavior */
-export type Options = Partial<{
+export type Options = {
   /** Silently swallow all (even user) errors.
    *  @default process.env.NODE_ENV === "production" */
   silent: boolean
@@ -28,12 +28,18 @@ export type Options = Partial<{
   /** Print all warnings and errors in console. Overrides `silent` option.
    *  @default false */
   verbose: boolean
-}>
 
-const defaultOptions: Required<Options> = {
+  /** Prefix is used to prevent key collisions in storage.
+   *  @pattern `/[0-9A-Za-z-_@/]+:/` (similar to npm package names)
+   *  @default "persistent-state:" */
+  prefix: string
+}
+
+const defaultOptions: Options = {
   verbose: false,
   silent: process.env.NODE_ENV === "production",
-} as const
+  prefix: "persistent-state:",
+}
 
 // OVERLOADS AND JSDOC
 // --------------------------------------------------
@@ -45,7 +51,7 @@ const defaultOptions: Required<Options> = {
  * @param {S | (() => S)} initialState - The initial state value or a function that returns it.
  * @param {string} storageKey - A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
  * @param {StorageType} [storageType="session"] - The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
- * @param {Options} [options] - Configuration options for the hook.
+ * @param {Partial<Options>} [options=defaultOptions] - Configuration options for the hook.
  * ---
  * @returns {[S, Dispatch<SetStateAction<S>,PurgeMethod]} The same array as returned by `React.useState` with the addition of a purge method.
  * ---
@@ -83,7 +89,7 @@ export function usePersistentState<S>(
   initialState: S | (() => S),
   storageKey?: string,
   storageType?: StorageType,
-  options?: Options,
+  options?: Partial<Options>,
 ): [S, Dispatch<SetStateAction<S>>, PurgeMethod]
 
 /**
@@ -93,7 +99,7 @@ export function usePersistentState<S>(
  * @param {undefined} initialState - The initial state value or a function that returns it.
  * @param {string} storageKey - A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
  * @param {StorageType} [storageType="session"] - The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
- * @param {Options} [options] - Configuration options for the hook.
+ * @param {Partial<Options>} [options=defaultOptions] - Configuration options for the hook.
  * ---
  * @returns {[S | undefined, Dispatch<SetStateAction<S | undefined>>,PurgeMethod]} The same array as returned by `React.useState` with the addition of a purge method.
  * ---
@@ -131,7 +137,7 @@ export function usePersistentState<S = undefined>(
   initialState: undefined,
   storageKey?: string,
   storageType?: StorageType,
-  options?: Options,
+  options?: Partial<Options>,
 ): [S | undefined, Dispatch<SetStateAction<S | undefined>>]
 
 // USE PERSISTENT STATE HOOK
@@ -141,15 +147,18 @@ export function usePersistentState(
   initialState: unknown,
   storageKey: string = "",
   storageType: StorageType = "session",
-  options: Options = defaultOptions,
+  options: Partial<Options> = defaultOptions,
 ) {
-  options = { ...defaultOptions, ...options }
-  options.silent = options.verbose || options.silent // Disable silent mode if verbose is enabled
+  const config: Options = { ...defaultOptions, ...options }
+  config.silent = config.verbose || config.silent // Disable silent mode if verbose is enabled
+
+  // Add prefix if missing (for backwards compatibility)
+  storageKey = storageKey.startsWith(config.prefix) ? storageKey : config.prefix + storageKey
 
   // Use React.useState internally
   const [value, setValue] = useState(() => {
     initialState = typeof initialState === "function" ? (initialState as () => unknown)() : initialState
-    return storageGet(storageType, storageKey, initialState, options.verbose) ?? initialState
+    return storageGet(storageType, storageKey, initialState, config.verbose) ?? initialState
   })
 
   const isMounted = useRef(false) // Remember if we are past first render
@@ -157,10 +166,10 @@ export function usePersistentState(
 
   // Initial one-time checks - all verbose
   useEffect(() => {
-    checkMissingStorageKey(storageKey, !options.silent) ||
-      checkStorageType(storageType, !options.silent) ||
-      checkWindow(!options.silent) ||
-      checkBrowserStorage(!options.silent)
+    checkMissingStorageKey(storageKey, !config.silent) ||
+      checkStorageType(storageType, !config.silent) ||
+      checkWindow(!config.silent) ||
+      checkBrowserStorage(!config.silent)
 
     shouldFallback.current = true
   }, [])
@@ -169,19 +178,19 @@ export function usePersistentState(
   useEffect(() => {
     // Skip first render and undefined values
     if (!isMounted.current) isMounted.current = true
-    if (value === undefined) storageRemove(storageType, storageKey, options.verbose)
+    if (value === undefined) storageRemove(storageType, storageKey, config.verbose)
     if (shouldFallback.current || !isMounted.current || value === undefined) return
 
     // Serialize value once before saving and checking if serializable
     const serializedValue = serializeValue(value)
-    checkIfSerializable(serializedValue, !options.silent) // Verbose when changing values
+    if (!checkIfSerializable(serializedValue, !config.silent)) return
 
     // Update or remove value in storage
-    storageSet(storageType, storageKey, serializedValue, options.verbose)
+    storageSet(storageType, storageKey, serializedValue, config.verbose)
   }, [value])
 
   const purgeValue = useCallback((newState?: unknown) => {
-    storageRemove(storageType, storageKey, options.verbose)
+    storageRemove(storageType, storageKey, config.verbose)
     if (newState) setValue(newState)
   }, [])
 

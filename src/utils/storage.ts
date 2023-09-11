@@ -15,7 +15,7 @@ export function storageGet(
 
   try {
     const storedValue = getStorage(storageType, verbose)?.getItem(storageKey)
-    const parsedValue = storedValue?.length ? JSON.parse(storedValue) : value
+    const parsedValue = storedValue?.length ? JSON.parse(storedValue.replace(/[0-9A-Za-z-_@/]+:/, "")) : value
     return parsedValue
   } catch (err) {
     error("Failed to load and parse state from BrowserStorage. See next console message for details.", err)
@@ -26,19 +26,21 @@ export function storageGet(
 /**
  * Saves a given **serialized value** to BrowserStorage.
  */
-export function storageSet(storageType: StorageType, storageKey: string, value?: string, verbose = false): void {
+export function storageSet(
+  storageType: StorageType,
+  storageKey: string,
+  value: string | undefined,
+  verbose = false,
+): void {
   if (checkStorageAvailability(storageType, storageKey, verbose)) return
-
-  if (typeof value !== "undefined" && typeof value !== "string") {
+  if (typeof value !== "undefined" && typeof value !== "string")
     error("Invalid value type passed to usePersistentState/storageSet. Expected string or undefined.")
-  }
 
-  if (typeof value !== "string" || !value?.length) {
+  if (typeof value === "string" && value?.length) {
+    getStorage(storageType, verbose)?.setItem(storageKey, value)
+  } else {
     storageRemove(storageType, storageKey)
-    return
   }
-
-  getStorage(storageType, verbose)?.setItem(storageKey, value)
 }
 
 /**
@@ -46,6 +48,5 @@ export function storageSet(storageType: StorageType, storageKey: string, value?:
  */
 export function storageRemove(storageType: StorageType, storageKey: string, verbose = false): void {
   if (checkStorageAvailability(storageType, storageKey, verbose)) return
-
   getStorage(storageType, verbose)?.removeItem(storageKey)
 }
