@@ -12,16 +12,15 @@ import { serializeValue } from "./utils"
 
 export type StorageType = "local" | "session"
 
-export type Options =
-  | undefined
-  | Partial<{
-      /** Print to console all warnings and errors. **Default**: `false` */
-      verbose: boolean
-      /** Silently swallow all (even user) errors. **Default**: `false` */
-      silent: boolean
-    }>
+/** Optional Options API for usePersistentState */
+export type Options = Partial<{
+  /** Print to console all warnings and errors. **Default**: `false` */
+  verbose: boolean
+  /** Silently swallow all (even user) errors. **Default**: `false` */
+  silent: boolean
+}>
 
-const defaultOptions: Options = {
+const defaultOptions: Required<Options> = {
   verbose: false,
   silent: false,
 } as const
@@ -121,7 +120,7 @@ export function usePersistentState(
 
     // Serialize value before saving
     const serializedValue = serializeValue(value)
-    checkIfSerializable(serializedValue, !config.silent) // Verbose when changing values
+    checkIfSerializable(serializedValue, !config?.silent) // Verbose when changing values
 
     // Update or remove value in storage
     storageSet(storageType, storageKey, serializedValue)
