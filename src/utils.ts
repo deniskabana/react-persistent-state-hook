@@ -16,7 +16,7 @@ export function checkStorageAvailability(storageType: StorageTypeArg, storageKey
 /**
  * Retrieve storage object from window.
  */
-export function getStorage(storageType: StorageTypeArg): Storage | void {
+export function getStorage(storageType: StorageTypeArg): Storage | undefined {
   const storage = (window as any)[`${storageType}Storage`]
   if (!storage) error("BrowserStorage is not available.")
   return storage
