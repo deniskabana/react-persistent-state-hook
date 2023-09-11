@@ -21,7 +21,7 @@ yarn add react-persistent-state-hook # or different package manager
 ```
 
 ```typescript
-const [name, setName] = usePersistentState("John") // It just works 🎉
+const [name, setName] = usePersistentState("John") // It just works, like magic 🎩
 ```
 
 ---
@@ -95,8 +95,8 @@ import { usePersistentState } from "react-persistent-state-hook"
 const [count, setCount] = usePersistentState(0)
 const [count, setCount] = usePersistentState(() => 0)
 
-// Add a unique key for more reliable persistance
-const [count, setCount] = usePersistentState(0, "local", { storageKey: "unique-key" })
+// Add a unique key for more reliable persistance (strongly recommended 💪)
+const [count, setCount] = usePersistentState(0, { storageKey: "unique-key" })
 ```
 
 > 💡 Possible state management replacement (like context or Redux) with zero configuration in situations where data loss is acceptable (like UI preferences). ☝️
@@ -105,21 +105,17 @@ const [count, setCount] = usePersistentState(0, "local", { storageKey: "unique-k
 
 ```typescript
 // Easy switching between localStorage and sessionStorage
-const [count, setCount] = usePersistentState(0, "session")
+const [count, setCount] = usePersistentState(0, { storageType: "session" })
 ```
 
 ```typescript
-// Configurable with options API
-const [count, setCount] = usePersistentState(0, "session", { verbose: true })
-```
-
-```typescript
-// A bit more robust example
+// A bit more robust usage example
 const DEFAULT_UX_PREF = { perPage: 15, compact: true, fixedHeader: true }
 
-const [tableUxPref, setTableUxPref] = usePersistentState<typeof DEFAULT_UX_PREF>({ ...DEFAULT_UX_PREF }, "local", {
-  storageKey: "tableUxPref",
-})
+const [tableUxPref, setTableUxPref] = usePersistentState<typeof DEFAULT_UX_PREF>(
+  { ...DEFAULT_UX_PREF },
+  { storageKey: "tableUxPref", storageType: "local" },
+)
 ```
 
 ---
@@ -140,6 +136,10 @@ export type Options = {
   /** A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
    *  @default undefined */
   storageKey: string | undefined
+
+  /** * The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
+   *  @default "local" */
+  storageType: "local" | "session"
 }
 ```
 
@@ -185,10 +185,6 @@ _See source: [`src/usePersistentState.ts:23`](./src/usePersistentState.ts#L23)_
   - Implement Web Storage and in-memory storage as exported storage adapter functions / objects
 - **React Native support**
   - Extend our magic to React Native projects with support for the `AsyncStorage` API
-- **Simplified Usage**
-  - Making it even easier with simplified usage. Just `const [name, setName] = usePersistentState("John")`, and we'll handle the rest based on your environment. It's like magic ✨ as long as you don't care about data safety!
-  - Introduce a **breaking change** of the default types of storage 🚨
-  - Implement automatic key-gen without any user input to make default storage automagically _(help potentially needed)_ work 🧑‍🔬
 
 ---
 
