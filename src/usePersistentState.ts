@@ -153,31 +153,32 @@ export function usePersistentState(
 
   // Initial one-time checks - all verbose
   useEffect(() => {
-    checkMissingStorageKey(storageKey, verbose) ||
+    if (
+      checkMissingStorageKey(storageKey, verbose) ||
       checkStorageType(storageType, verbose) ||
       checkWindow(verbose) ||
       checkBrowserStorage(verbose)
+    ) {
+      shouldFallback.current = true
+    }
 
-    shouldFallback.current = true
     if (verbose) info("Initializing...", { storageKey, storageType, config })
-
-    // Update or remove value in storage
-    storageSet(storageType, storageKey, serializeValue(value, verbose), verbose)
   }, [])
 
   // Update storage on value change
   useEffect(() => {
-    // Skip first render and undefined values
-    if (!isMounted.current) isMounted.current = true
-    if (value === undefined) storageRemove(storageType, storageKey, verbose)
-    if (shouldFallback.current || !isMounted.current || value === undefined) return
+    if (verbose) info("Value change event", { storageKey, storageType, value })
 
-    // Serialize value once before saving and checking if serializable
+    if (shouldFallback.current) return
+    if (!isMounted.current || value === undefined) {
+      isMounted.current = true
+      if (value === undefined) storageRemove(storageType, storageKey, verbose)
+      return
+    }
+
     const serializedValue = serializeValue(value, verbose)
     if (!checkIfSerializable(serializedValue, verbose)) return
-
-    // Update or remove value in storage
-    storageSet(storageType, storageKey, serializedValue, verbose)
+    storageSet(storageType, storageKey, serializedValue, verbose) // Update or remove value in storage
   }, [value])
 
   // Purge state from storage and optionally replace state
@@ -188,6 +189,5 @@ export function usePersistentState(
     if (newState) setValue(newState)
   }, [])
 
-  // Return state management
   return [value, setValue, purgeValue]
 }
