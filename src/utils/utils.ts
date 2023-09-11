@@ -1,6 +1,6 @@
 import { checkBrowserStorage, checkMissingStorageKey, checkStorageType, checkWindow } from "./checkErrors"
 import { error } from "./console"
-import type { StorageType } from "./usePersistentState"
+import type { StorageType } from "../usePersistentState"
 
 /**
  * Perform automatic checks when necessary

@@ -1,23 +1,27 @@
 # react-persistent-state-hook
 
-A React `useState()` replacement with built-in persistence with [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
+<div align="center">
+
+[![Build status](https://img.shields.io/github/actions/workflow/status/deniskabana/react-persistent-state-hook/pr-and-main-tests.yml?branch=main&style=for-the-badge)](/actions/workflows/pr-and-main-tests.yml)
+[![Size](https://img.shields.io/bundlephobia/minzip/react-persistent-state-hook?style=for-the-badge)](https://bundlephobia.com/package/react-persistent-state-hook)
+[![Version](https://img.shields.io/npm/v/react-persistent-state-hook?style=for-the-badge)](https://www.npmjs.com/package/react-persistent-state-hook)
+[![License](https://img.shields.io/github/license/deniskabana/react-persistent-state-hook?style=for-the-badge)](./LICENSE)
+
+</div>
+
+💡🧠 A React `useState()` replacement with built-in persistence with [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
+
+```bash
+yarn add react-persistent-state-hook
+# or
+npm i -S react-persistent-state-hook
+```
 
 ```typescript
 const [name, setName] = usePersistentState("John", "unique-key")
 ```
 
-See [Roadmap](#roadmap) for future plans
-
----
-
-<div align="center">
-
-![Build status](https://img.shields.io/github/actions/workflow/status/deniskabana/react-persistent-state-hook/pr-and-main-tests.yml?branch=main&style=for-the-badge)
-![Size](https://img.shields.io/bundlephobia/minzip/react-persistent-state-hook?style=for-the-badge)
-![Version](https://img.shields.io/npm/v/react-persistent-state-hook?style=for-the-badge)
-![License](https://img.shields.io/github/license/deniskabana/react-persistent-state-hook?style=for-the-badge)
-
-</div>
+See [Roadmap](#roadmap) for future plans or read further to learn more about this magic 🧙‍♀️.
 
 ---
 
@@ -38,16 +42,6 @@ _Coming soon_ 💡
 ---
 
 ### Usage
-
-**1. Install library**
-
-```bash
-yarn add react-persistent-state-hook
-# or
-npm i -S react-persistent-state-hook
-```
-
-**2. Start coding!**
 
 ```typescript
 // Replace React.useState without breaking functionality
@@ -96,7 +90,7 @@ export type Options = Partial<{
 }>
 ```
 
-_Source: [usePersistentState.ts:18](./src/usePersistentState.ts#L18)_
+_Source: [usePersistentState.ts:22](./src/usePersistentState.ts#L22)_
 
 ---
 

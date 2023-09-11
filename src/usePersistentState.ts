@@ -6,9 +6,9 @@ import {
   checkMissingStorageKey,
   checkStorageType,
   checkWindow,
-} from "./checkErrors"
-import { storageSet, storageGet, storageRemove } from "./storage"
-import { serializeValue } from "./utils"
+} from "./utils/checkErrors"
+import { storageSet, storageGet, storageRemove } from "./utils/storage"
+import { serializeValue } from "./utils/utils"
 
 // TYPES AND OPTIONS
 // --------------------------------------------------
