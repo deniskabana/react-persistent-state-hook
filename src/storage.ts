@@ -1,12 +1,12 @@
 import { checkStorageAvailability, getStorage } from "./utils"
 import { error } from "./console"
-import type { StorageTypeArg } from "./usePersistentState"
+import type { StorageType } from "./usePersistentState"
 
 /**
  * Retrieves a value from BrowserStorage or return value provided.
  */
 export function storageGet(
-  storageType: StorageTypeArg,
+  storageType: StorageType,
   storageKey: string,
   value: unknown,
   verbose = false,
@@ -26,7 +26,7 @@ export function storageGet(
 /**
  * Saves a given **serialized value** to BrowserStorage.
  */
-export function storageSet(storageType: StorageTypeArg, storageKey: string, value?: string, verbose = false): void {
+export function storageSet(storageType: StorageType, storageKey: string, value?: string, verbose = false): void {
   if (checkStorageAvailability(storageType, storageKey, verbose)) return
 
   if (typeof value !== "undefined" && typeof value !== "string") {
@@ -44,7 +44,7 @@ export function storageSet(storageType: StorageTypeArg, storageKey: string, valu
 /**
  * Removes a given key from BrowserStorage.
  */
-export function storageRemove(storageType: StorageTypeArg, storageKey: string, verbose = false): void {
+export function storageRemove(storageType: StorageType, storageKey: string, verbose = false): void {
   if (checkStorageAvailability(storageType, storageKey, verbose)) return
 
   getStorage(storageType)?.removeItem(storageKey)

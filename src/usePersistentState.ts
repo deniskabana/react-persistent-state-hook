@@ -10,12 +10,7 @@ import {
 import { storageSet, storageGet, storageRemove } from "./storage"
 import { serializeValue } from "./utils"
 
-export enum StorageType {
-  Local = "local",
-  Session = "session",
-}
-
-export type StorageTypeArg = StorageType | "local" | "session" | string
+export type StorageType = "local" | "session"
 
 export type Options = Partial<{
   /** Print to console all warnings and errors */
@@ -50,7 +45,7 @@ const defaultOptions: Options = {
 export function usePersistentState<S>(
   initialState: S | (() => S),
   storageKey?: string,
-  storageType?: StorageTypeArg,
+  storageType?: StorageType,
   config?: Options,
 ): [S, Dispatch<SetStateAction<S>>]
 
@@ -72,7 +67,7 @@ export function usePersistentState<S>(
 export function usePersistentState<S = undefined>(
   initialState: undefined,
   storageKey?: string,
-  storageType?: StorageTypeArg,
+  storageType?: StorageType,
   config?: Options,
 ): [S | undefined, Dispatch<SetStateAction<S | undefined>>]
 
@@ -82,7 +77,7 @@ export function usePersistentState<S = undefined>(
 export function usePersistentState(
   initialState: unknown,
   storageKey: string = "",
-  storageType: StorageTypeArg = StorageType.Session,
+  storageType: StorageType = "session",
   config: Options = defaultOptions,
 ) {
   // Initialize classic React state

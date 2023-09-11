@@ -1,11 +1,11 @@
 import { checkBrowserStorage, checkMissingStorageKey, checkStorageType, checkWindow } from "./checkErrors"
 import { error } from "./console"
-import type { StorageTypeArg } from "./usePersistentState"
+import type { StorageType } from "./usePersistentState"
 
 /**
  * Perform automatic checks when necessary
  */
-export function checkStorageAvailability(storageType: StorageTypeArg, storageKey: string, verbose?: boolean): boolean {
+export function checkStorageAvailability(storageType: StorageType, storageKey: string, verbose?: boolean): boolean {
   if (checkWindow(verbose)) return true
   if (checkBrowserStorage(verbose)) return true
   if (checkStorageType(storageType, verbose)) return true
@@ -16,7 +16,7 @@ export function checkStorageAvailability(storageType: StorageTypeArg, storageKey
 /**
  * Retrieve storage object from window.
  */
-export function getStorage(storageType: StorageTypeArg): Storage | undefined {
+export function getStorage(storageType: StorageType): Storage | undefined {
   const storage = (window as any)[`${storageType}Storage`]
   if (!storage) error("BrowserStorage is not available.")
   return storage
