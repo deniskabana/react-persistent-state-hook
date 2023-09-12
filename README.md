@@ -120,7 +120,7 @@ const [count, setCount] = usePersistentState(0, { storageType: "session" })
 ```
 
 ```typescript
-// A bit more realistic usage
+// A bit more advanced usage
 const TABLE_PREF = { perPage: 15, compact: false } as const
 const [isPersistent, setIsPersistent] = useState(false) // controlled by a checkbox
 
