@@ -17,11 +17,15 @@
 </div>
 
 ```bash
-yarn add react-persistent-state-hook # or different package manager
+yarn add react-persistent-state-hook # or npm, pnpm, bun, etc.
 ```
 
 ```typescript
-const [name, setName] = usePersistentState("John") // It just works, like magic 🎩
+// It works, just like magic 🎩
+const [name, setName] = usePersistentState("John")
+
+// For more safety, provide a storageKey (strongly recommended 💪)
+const [name, setName] = usePersistentState("John", { storageKey: "greeting-name" })
 ```
 
 ---
@@ -42,23 +46,23 @@ const [name, setName] = usePersistentState("John") // It just works, like magic 
 
 1. 🐣 **Plug'n'play with Zero Configuration**:
 
-   - A drop-in replacement for React's `useState` hook without breaking your code or changing your workflow. Provide a unique key to persist state values more reliably.
+   A drop-in replacement for React's `useState` hook without breaking your code or changing your workflow. Provide a unique key to persist state values more reliably.
 
 2. 🧠 **Data Persistence**:
 
-   - Store state values in `localStorage` or `sessionStorage`. Until version 2, we only support Web Storage API, but more are coming.
+   Store state values in `localStorage` or `sessionStorage`. Until version 2, we only support Web Storage API, but more are coming.
 
 3. ♻️ **Platform-Agnostic**:
 
-   - `usePersistentState` gracefully handles scenarios where Web Storage is not available, behaving exactly like `useState`.
+   `usePersistentState` gracefully handles scenarios where Web Storage is not available, behaving exactly like `useState`.
 
 4. 📭 **No Dependencies**:
 
-   - Keep your project light - no dependencies and a single peer dependency (`react >= 16.8`).
+   Keep your project light - no dependencies and a single peer dependency (`react >= 16.8`).
 
 5. 🧑‍💻 **First-class TypeScript Support**:
 
-   - Fully typed with TypeScript, providing the same type support as React's `useState` (including overloads).
+   Fully typed with TypeScript, providing the same type support as React's `useState` (including overloads).
 
 6. 🚧 **Roadmap for Continuous Improvement**:
 
@@ -66,15 +70,15 @@ const [name, setName] = usePersistentState("John") // It just works, like magic 
 
 7. 📚 **Documentation and Tutorials**:
 
-   - Straight-forward readme with examples and comprehensive JSDoc annotations for the hook and its options (all types are exported).
+   Straight-forward readme with examples and comprehensive JSDoc annotations for the hook and its options (all types are exported).
 
 8. Coming Soon - **Custom Storage Adapters**:
 
-   - Allowing integration with libraries like Redux, React Native state APIs, or custom storage solutions.
+   Allowing integration with libraries like Redux, React Native state APIs, or custom storage solutions.
 
 9. Coming Soon - **React Native Support**:
 
-   - Extend the benefits of state persistence to React Native projects by implementing a first-class `AsyncStorage` API adapter.
+   Extend the benefits of state persistence to React Native projects by implementing a first-class `AsyncStorage` API adapter.
 
 We're committed to delivering a minimal and flexible solution for state management and persistence in React applications. Join us on this journey by contributing! 🚀
 
@@ -85,10 +89,14 @@ We're committed to delivering a minimal and flexible solution for state manageme
 Start by importing the hook:
 
 ```typescript
-import { usePersistentState } from "react-persistent-state-hook"
+import usePersistentState from "react-persistent-state-hook"
 ```
 
 #### Basic usage
+
+💡 Keep in mind, that if you do **not** provide a `storageKey` to the options, the key will be generated automatically as a _hash of the `initialState` value_.
+
+Because this can lead to unexpected behavior (losing state or conflicts), it's **strongly recommended to provide a `storageKey` for each state**.
 
 ```typescript
 // Replace React.useState and enjoy persistence with localStorage 🎉
