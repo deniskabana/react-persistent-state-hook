@@ -1,5 +1,5 @@
 import { error, warn } from "./console"
-import { StorageType } from "../usePersistentState"
+import { StorageType } from "./types"
 
 /**
  * Returns true if storage key is missing, false if it's a valid string of length >= 1.

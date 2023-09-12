@@ -21,7 +21,7 @@ yarn add react-persistent-state-hook # or npm, pnpm, bun, etc.
 ```
 
 ```typescript
-// It works, just like magic 🎩
+// It works just like magic 🌟
 const [name, setName] = usePersistentState("John")
 
 // For more safety, provide a storageKey (strongly recommended 💪)
@@ -89,7 +89,7 @@ We're committed to delivering a minimal and flexible solution for state manageme
 Start by importing the hook:
 
 ```typescript
-import usePersistentState from "react-persistent-state-hook"
+import { usePersistentState } from "react-persistent-state-hook"
 ```
 
 #### Basic usage
@@ -111,6 +111,11 @@ storageKey.replace(/[^A-Za-z0-9-_@/]/gi, "-")
 ```
 
 > 💡 Possible state management replacement (like context or Redux) with zero configuration in situations where data loss is acceptable (like UI preferences). ☝️
+
+```typescript
+// You can use prefixes to group related keys or to improve automatic key generation
+const [count, setCount] = usePersistentState(0, { prefix: "homepage", storageKey: "count" })
+```
 
 #### Advanced usage
 
@@ -159,11 +164,11 @@ export type Options = {
    *  @default false */
   verbose: boolean
 
-  /** A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
+  /** A unique key used to store the state value in the Web Storage API.
    *  @default undefined */
   storageKey: string | undefined
 
-  /** The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
+  /** The type of Web Storage API to use (either "session" or "local").
    *  @default "local" */
   storageType: StorageType
 

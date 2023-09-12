@@ -1,6 +1,6 @@
 import { checkStorageAvailability, getStorage } from "./utils"
 import { error, info } from "./console"
-import type { StorageType } from "../usePersistentState"
+import type { StorageType } from "./types"
 
 /**
  * Retrieves a value from BrowserStorage or return value provided.

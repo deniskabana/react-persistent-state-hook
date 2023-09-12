@@ -1,6 +1,6 @@
 import { checkBrowserStorage, checkMissingStorageKey, checkStorageType, checkWindow } from "./checkErrors"
 import { error } from "./console"
-import type { Options, StorageType } from "../usePersistentState"
+import type { Options, StorageType } from "./types"
 
 // Acronym for react-persistent-state-hook
 export const KEY_PREFIX = "[rpsh]"
@@ -18,7 +18,7 @@ export const DEFAULT_OPTIONS: Options = {
  */
 export function generateStorageKey(options: Options, initialState: unknown): string | undefined {
   let key = options.storageKey
-  if (!key) key = hashString(typeof initialState === "function" ? initialState() : initialState, options.verbose)
+  if (!key) key = hashString(typeof initialState === "function" ? initialState() : initialState, options)
   if (!key) return undefined
 
   key = key.replace(/[^A-Za-z0-9-_@/]/gi, "-")
@@ -72,10 +72,12 @@ export function serializeValue(value: unknown, verbose: boolean): string {
 
 /**
  * A function used when storage key is not provided
+ * - Generates a hash from state as string using djb2 algorithm
  */
-export function hashString(value: unknown, verbose: boolean): string | undefined {
+export function hashString(value: unknown, options: Options): string | undefined {
   try {
-    const serialized = JSON.stringify(value) ?? ""
+    let serialized = JSON.stringify(value) ?? ""
+    serialized = `${options.prefix}_${serialized}`
     if (typeof serialized !== "string") throw new Error("Failed to serialize state.")
 
     let hash = 0
@@ -86,7 +88,7 @@ export function hashString(value: unknown, verbose: boolean): string | undefined
 
     return new Uint32Array([hash])[0].toString(36)
   } catch (err) {
-    if (verbose) error("Failed to generate storage key. See next console message for details.", err)
+    if (options.verbose) error("Failed to generate storage key. See next console message for details.", err)
     return undefined
   }
 }

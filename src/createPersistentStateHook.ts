@@ -1,8 +1,11 @@
-import { Options, usePersistentState } from "./usePersistentState"
+import { usePersistentState } from "./usePersistentState"
+import { Options, UsePersistentState } from "./utils/types"
 
 /**
  * Create your own instance of `usePersistentState` with shared options.
  * Useful if you have to pass the same options everywhere.
+ *
+ * @see {@link usePersistentState}
  *
  * @example
  * ```typescript
@@ -14,7 +17,9 @@ import { Options, usePersistentState } from "./usePersistentState"
  * ```
  */
 export function createPersistentStateHook(options?: Partial<Options>) {
-  return function <S>(initialState: S, localOptions?: Partial<Options>) {
-    return usePersistentState<S>(initialState, { ...options, ...localOptions })
+  const useMiddleware: UsePersistentState = (initialState, localOptions?: Partial<Options>) => {
+    return usePersistentState(initialState as any, { ...options, ...localOptions })
   }
+
+  return useMiddleware
 }
