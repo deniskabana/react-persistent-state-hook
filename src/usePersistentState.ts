@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import type { Dispatch, SetStateAction } from "react"
 import {
   checkBrowserStorage,
@@ -30,9 +30,13 @@ export type Options = {
    *  @default undefined */
   storageKey: string | undefined
 
-  /** * The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
+  /** The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
    *  @default "local" */
   storageType: StorageType
+
+  /** Allow programatically enabling and disabling persistence in-place.
+   *  @default true */
+  persistent: boolean
 }
 
 // OVERLOADS AND JSDOC
@@ -42,7 +46,7 @@ export type Options = {
  * `usePersistentState` is a custom React hook that provides a drop-in replacement for `React.useState`.
  * It allows you to persist the state value without any configuration in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API), such as `localStorage` or `sessionStorage`.
  * ---
- * @param {S | (() => S)} initialState - The initial state value or a function that returns it.
+ * @param {S | (() => S)} initialState - The initial state value or a function that returns it. **Keys are generated based on serialized initialState**.
  * @param {Partial<Options>} [options=defaultOptions] - Configuration options for the hook.
  * ---
  * @returns {[S, Dispatch<SetStateAction<S>>,PurgeMethod]} The same array as returned by `React.useState` with the addition of a purge method.
@@ -86,7 +90,7 @@ export function usePersistentState<S>(
  * `usePersistentState` is a custom React hook that provides a drop-in replacement for `React.useState`.
  * It allows you to persist the state value without any configuration in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API), such as `localStorage` or `sessionStorage`.
  * ---
- * @param {undefined} initialState - The initial state value or a function that returns it.
+ * @param {undefined} initialState - The initial state value or a function that returns it. **Keys are generated based on serialized initialState**.
  * @param {Partial<Options>} [options=defaultOptions] - Configuration options for the hook.
  * ---
  * @returns {[S | undefined, Dispatch<SetStateAction<S | undefined>>,PurgeMethod]} The same array as returned by `React.useState` with the addition of a purge method.
@@ -131,13 +135,14 @@ export function usePersistentState<S = undefined>(
 
 export function usePersistentState(initialState: unknown, options: Partial<Options> = DEFAULT_OPTIONS) {
   const config: Options = { ...DEFAULT_OPTIONS, ...options }
-  const storageKey = generateStorageKey(config, initialState)
-  const { verbose, storageType } = config // Used too much
+  // Memoize this to prevent more serializing and hashing and to not react to run-time initialState change
+  const storageKey = useMemo(() => generateStorageKey(config, initialState), [])
+  const { verbose, storageType } = config
 
   // Use React.useState internally
   const [value, setValue] = useState(() => {
     initialState = typeof initialState === "function" ? (initialState as () => unknown)() : initialState
-    if (!storageKey) return initialState
+    if (!storageKey || !config.persistent) return initialState
     return storageGet(storageType, storageKey, initialState, verbose) ?? initialState
   })
 
@@ -162,7 +167,7 @@ export function usePersistentState(initialState: unknown, options: Partial<Optio
   useEffect(() => {
     if (verbose) info("Value change event", { storageKey, storageType, value })
 
-    if (shouldFallback.current || !storageKey) return
+    if (shouldFallback.current || !storageKey || !config.persistent) return
     if (!isMounted.current || value === undefined) {
       isMounted.current = true
       if (value === undefined) storageRemove(storageType, storageKey, verbose)

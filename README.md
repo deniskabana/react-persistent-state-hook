@@ -105,6 +105,9 @@ const [count, setCount] = usePersistentState(() => 0)
 
 // Add a unique key for more reliable persistance (strongly recommended 💪)
 const [count, setCount] = usePersistentState(0, { storageKey: "unique-key" })
+
+// Keys are sanitized using this regex patttern:
+storageKey.replace(/[^A-Za-z0-9-_@/]/gi, "-")
 ```
 
 > 💡 Possible state management replacement (like context or Redux) with zero configuration in situations where data loss is acceptable (like UI preferences). ☝️
@@ -117,13 +120,14 @@ const [count, setCount] = usePersistentState(0, { storageType: "session" })
 ```
 
 ```typescript
-// A bit more robust usage example
-const DEFAULT_UX_PREF = { perPage: 15, compact: true, fixedHeader: true }
+// A bit more realistic usage
+const TABLE_PREF = { perPage: 15, compact: false } as const
+const [isPersistent, setIsPersistent] = useState(false) // controlled by a checkbox
 
-const [tableUxPref, setTableUxPref] = usePersistentState<typeof DEFAULT_UX_PREF>(
-  { ...DEFAULT_UX_PREF },
-  { storageKey: "tableUxPref", storageType: "local" },
-)
+const [tableUxPref, setTableUxPref] = usePersistentState<typeof TABLE_PREF>(TABLE_PREF, {
+  storageKey: "homepage/tableUxPref",
+  persistent: isPersistent,
+})
 ```
 
 ---
@@ -145,9 +149,13 @@ export type Options = {
    *  @default undefined */
   storageKey: string | undefined
 
-  /** * The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
+  /** The type of [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to use (either "session" or "local").
    *  @default "local" */
-  storageType: "local" | "session"
+  storageType: StorageType
+
+  /** Allow programatically enabling and disabling persistence in-place.
+   *  @default true */
+  persistent: boolean
 }
 ```
 
@@ -167,8 +175,6 @@ _See source: [`src/usePersistentState.ts:23`](./src/usePersistentState.ts#L23)_
   - Add config keys - `resolutionStrategy` and `resolutionMethod` - that can be used to override the default resolution behavior
 - **Generate Hook with Static Config**
   - Allow and prominently document custom hook implementation of `usePersistentState` with persistent config - `export const usePersistentState = createPersistentStateHook({ ...config })`
-- **Conditional persistence**
-  - Add a config key - `persist: false` - that can conditionally disable persistence for a specific state
 - **1.0.0 Release 🎉**
   - Freeze the `main` branch and move development to `dev-v1.x` branches, that eventually get merged into `main` as PRs. We need to act responsible 👨‍🏫
 

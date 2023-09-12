@@ -9,6 +9,7 @@ export const DEFAULT_OPTIONS: Options = {
   verbose: false,
   storageKey: undefined,
   storageType: "local",
+  persistent: true,
 }
 
 /**
@@ -18,6 +19,8 @@ export function generateStorageKey(options: Options, initialState: unknown): str
   let key = options.storageKey
   if (!key) key = hashString(typeof initialState === "function" ? initialState() : initialState, options.verbose)
   if (!key) return undefined
+
+  key = key.replace(/[^A-Za-z0-9-_@/]/gi, "-")
   return `${KEY_PREFIX}:${key}`
 }
 
