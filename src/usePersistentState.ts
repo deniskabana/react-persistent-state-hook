@@ -37,6 +37,10 @@ export type Options = {
   /** Allow programatically enabling and disabling persistence in-place.
    *  @default true */
   persistent: boolean
+
+  /** Allow the use of custom key prefix
+   *  @default "[rpsh]" */
+  prefix: string
 }
 
 // OVERLOADS AND JSDOC
@@ -135,6 +139,7 @@ export function usePersistentState<S = undefined>(
 
 export function usePersistentState(initialState: unknown, options: Partial<Options> = DEFAULT_OPTIONS) {
   const config: Options = { ...DEFAULT_OPTIONS, ...options }
+  config.prefix = String(String(config.prefix)?.length ? config.prefix : DEFAULT_OPTIONS.prefix) // Sanitize prefix
   // Memoize this to prevent more serializing and hashing and to not react to run-time initialState change
   const storageKey = useMemo(() => generateStorageKey(config, initialState), [])
   const { verbose, storageType } = config

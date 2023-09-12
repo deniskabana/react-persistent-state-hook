@@ -130,6 +130,21 @@ const [tableUxPref, setTableUxPref] = usePersistentState<typeof TABLE_PREF>(TABL
 })
 ```
 
+💡 You can create a custom `usePersistentState` hook with default options easily to share or persist configuration values across your application or different contexts:
+
+```typescript
+import { createPersistentStateHook } from "react-persistent-state-hook"
+
+// Create your own hook with defaults
+export const useMyPersistentState = createPersistentStateHook({
+  storageType: "session",
+  prefix: "homepage/pagination",
+})
+
+// Usage - you can still override default options
+const [page, setPage] = useMyPersistentState(1, { storageKey: "page" })
+```
+
 ---
 
 ### Options API
@@ -139,7 +154,6 @@ The Options API in `react-persistent-state-hook` allows you to tweak the behavio
 Breaking changes in the Options API or elsewhere in `react-persistent-state-hook` are only released in major versions 🤞
 
 ```typescript
-/** Options API to change behavior */
 export type Options = {
   /** Print all warnings and errors in console. Overrides `silent` option.
    *  @default false */
@@ -156,10 +170,14 @@ export type Options = {
   /** Allow programatically enabling and disabling persistence in-place.
    *  @default true */
   persistent: boolean
+
+  /** Allow the use of custom key prefix
+   *  @default "[rpsh]" */
+  prefix: string
 }
 ```
 
-_See source: [`src/usePersistentState.ts:23`](./src/usePersistentState.ts#L23)_
+_See source: [`src/usePersistentState.ts:24`](./src/usePersistentState.ts#L24)_
 
 ---
 
@@ -173,8 +191,6 @@ _See source: [`src/usePersistentState.ts:23`](./src/usePersistentState.ts#L23)_
   - Introduce options for handling conflicts when states have different types or structures. Choose from `prefer-stored`, `prefer-new`, `throw-invalid-type`, `merge-prefer-new` and `merge-prefer-stored` (for objects, otherwise `prefer-stored` is used)
   - Default to `merge-prefer-new` to help with type migrations, this falls back to `prefer-stored` for non-objects.
   - Add config keys - `resolutionStrategy` and `resolutionMethod` - that can be used to override the default resolution behavior
-- **Generate Hook with Static Config**
-  - Allow and prominently document custom hook implementation of `usePersistentState` with persistent config - `export const usePersistentState = createPersistentStateHook({ ...config })`
 - **1.0.0 Release 🎉**
   - Freeze the `main` branch and move development to `dev-v1.x` branches, that eventually get merged into `main` as PRs. We need to act responsible 👨‍🏫
 

@@ -10,6 +10,7 @@ export const DEFAULT_OPTIONS: Options = {
   storageKey: undefined,
   storageType: "local",
   persistent: true,
+  prefix: KEY_PREFIX,
 }
 
 /**
@@ -21,7 +22,7 @@ export function generateStorageKey(options: Options, initialState: unknown): str
   if (!key) return undefined
 
   key = key.replace(/[^A-Za-z0-9-_@/]/gi, "-")
-  return `${KEY_PREFIX}:${key}`
+  return `${options.prefix}:${key}`
 }
 
 /**
