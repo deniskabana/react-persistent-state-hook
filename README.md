@@ -196,6 +196,9 @@ _See source: [`src/usePersistentState.ts:24`](./src/usePersistentState.ts#L24)_
   - Introduce options for handling conflicts when states have different types or structures. Choose from `prefer-stored`, `prefer-new`, `throw-invalid-type`, `merge-prefer-new` and `merge-prefer-stored` (for objects, otherwise `prefer-stored` is used)
   - Default to `merge-prefer-new` to help with type migrations, this falls back to `prefer-stored` for non-objects.
   - Add config keys - `resolutionStrategy` and `resolutionMethod` - that can be used to override the default resolution behavior
+- **StorageEvent implementation**
+  - Make this a major feature/ USP
+  - run setState on changes
 - **1.0.0 Release 🎉**
   - Freeze the `main` branch and move development to `dev-v1.x` branches, that eventually get merged into `main` as PRs. We need to act responsible 👨‍🏫
 
