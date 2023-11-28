@@ -16,6 +16,7 @@ import { UsePersistentState, Options, PurgeMethod } from "./utils/types"
  * It allows you to persist the state value without any configuration in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API), such as `localStorage` or `sessionStorage`.
  * ---
  * @param initialState - The initial state value or a function that returns it. **Keys are generated based on serialized initialState**.
+ * @param storageKey - A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
  * @param [options=defaultOptions] - Configuration options for the hook.
  * ---
  * @returns The same array as returned by `React.useState` with the addition of a purge method.
@@ -44,27 +45,34 @@ import { UsePersistentState, Options, PurgeMethod } from "./utils/types"
  * const [count, setCount] = usePersistentState(0, "unique-key", { verbose: true })
  * ```
  */
-export const usePersistentState: UsePersistentState = <S>(initialState: S, options?: Partial<Options> | undefined) => {
+export const usePersistentState: UsePersistentState = <S>(
+  initialState: S,
+  storageKey: string,
+  options?: Partial<Options> | undefined,
+) => {
   const config: Options = { ...DEFAULT_OPTIONS, ...options }
   config.prefix = String(String(config.prefix)?.length ? config.prefix : DEFAULT_OPTIONS.prefix) // Sanitize prefix
   // Memoize this to prevent more serializing and hashing and to not react to run-time initialState change
-  const storageKey = useMemo(() => generateStorageKey(config, initialState), [])
+  const memoizedStorageKey: string = useMemo(() => generateStorageKey(storageKey, initialState, config), [])
   const { verbose, storageType } = config
 
   // Use React.useState internally
   const [value, setValue] = useState<S>(() => {
     initialState = (typeof initialState === "function" ? (initialState as () => unknown)() : initialState) as S
-    if (!storageKey || !config.persistent) return initialState
-    return (storageGet(storageType, storageKey, initialState, verbose) ?? initialState) as S
+    if (!config.persistent) return initialState
+    return storageGet(storageType, memoizedStorageKey, initialState, verbose) as S
   })
 
   const isMounted = useRef(false) // Remember if we are past first render
   const shouldFallback = useRef(false) // Remember whether graceful fallback is necessary
 
   // Initial one-time checks - all verbose
+  // Register StorageEvent listener
   useEffect(() => {
+    if (verbose) info("Initializing...", { storageKey: memoizedStorageKey, storageType, config })
+
     if (
-      checkMissingStorageKey(storageKey, verbose) ||
+      checkMissingStorageKey(memoizedStorageKey, verbose) ||
       checkStorageType(storageType, verbose) ||
       checkWindow(verbose) ||
       checkBrowserStorage(verbose)
@@ -72,30 +80,41 @@ export const usePersistentState: UsePersistentState = <S>(initialState: S, optio
       shouldFallback.current = true
     }
 
-    if (verbose) info("Initializing...", { storageKey, storageType, config })
+    const eventListener = (event: StorageEvent) => {
+      if (event.key === memoizedStorageKey) {
+        const parsedValue = event.newValue?.length ? JSON.parse(event.newValue) : value
+        if (value !== parsedValue) setValue(parsedValue)
+      }
+    }
+
+    // Register StorageEvent listener
+    if (typeof window !== "undefined") window.addEventListener("storage", eventListener)
+    return () => {
+      if (typeof window !== "undefined") window.removeEventListener("storage", eventListener)
+    }
   }, [])
 
   // Update storage on value or config.persistent change
   useEffect(() => {
-    if (verbose) info("Value change event", { storageKey, storageType, value })
+    if (verbose) info("Value change event", { storageKey: memoizedStorageKey, storageType, value })
 
-    if (shouldFallback.current || !storageKey || !config.persistent) return
+    if (shouldFallback.current || !memoizedStorageKey || !config.persistent) return
     if (!isMounted.current || value === undefined) {
       isMounted.current = true
-      if (value === undefined) storageRemove(storageType, storageKey, verbose)
+      if (value === undefined) storageRemove(storageType, memoizedStorageKey, verbose)
       return
     }
 
     const serializedValue = serializeValue(value, verbose)
     if (!checkIfSerializable(serializedValue, verbose)) return
-    storageSet(storageType, storageKey, serializedValue, verbose) // Update or remove value in storage
+    storageSet(storageType, memoizedStorageKey, serializedValue, verbose) // Update or remove value in storage
   }, [value, config.persistent])
 
   // Purge state from storage and optionally replace state
   const purgeValue: PurgeMethod<S> = useCallback((newState?: S) => {
-    if (verbose) info("Purging storage...", { storageKey, storageType })
+    if (verbose) info("Purging storage...", { storageKey: memoizedStorageKey, storageType })
 
-    storageRemove(storageType, storageKey, verbose)
+    storageRemove(storageType, memoizedStorageKey, verbose)
     if (newState) setValue(newState)
   }, [])
 

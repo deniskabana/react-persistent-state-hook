@@ -7,7 +7,6 @@ export const KEY_PREFIX = "[rpsh]"
 
 export const DEFAULT_OPTIONS: Options = {
   verbose: false,
-  storageKey: undefined,
   storageType: "local",
   persistent: true,
   prefix: KEY_PREFIX,
@@ -16,13 +15,13 @@ export const DEFAULT_OPTIONS: Options = {
 /**
  * Either prefix chosen storage key or generate one from state as string hash
  */
-export function generateStorageKey(options: Options, initialState: unknown): string | undefined {
-  let key = options.storageKey
-  if (!key) key = hashString(typeof initialState === "function" ? initialState() : initialState, options)
-  if (!key) return undefined
+export function generateStorageKey(storageKey: string, initialState: unknown, options: Options): string {
+  if (storageKey) return `${options.prefix}:${storageKey}`
 
+  let key: string = storageKey
+  if (!key) key = hashString(typeof initialState === "function" ? initialState() : initialState, options)
   key = key.replace(/[^A-Za-z0-9-_@/]/gi, "-")
-  return `${options.prefix}:${key}`
+  return key
 }
 
 /**
@@ -43,7 +42,7 @@ export function checkStorageAvailability(
 /**
  * Retrieve storage object from window.
  */
-export function getStorage(storageType: StorageType | unknown, verbose: boolean): Storage | void {
+export function getStorage(storageType: StorageType | unknown, verbose: boolean): Storage {
   if (!checkWindow(verbose)) {
     switch (storageType) {
       case "local":
@@ -52,8 +51,7 @@ export function getStorage(storageType: StorageType | unknown, verbose: boolean)
         return window.sessionStorage
     }
   }
-
-  if (verbose) error("BrowserStorage is not available.")
+  return window.sessionStorage
 }
 
 /**
@@ -74,14 +72,16 @@ export function serializeValue(value: unknown, verbose: boolean): string {
  * A function used when storage key is not provided
  * - Generates a hash from state as string using djb2 algorithm
  */
-export function hashString(value: unknown, options: Options): string | undefined {
+export function hashString(value: unknown, options: Options): string {
+  let serialized = value?.toString() ?? String(value)
+
   try {
-    let serialized = JSON.stringify(value) ?? ""
+    serialized = JSON.stringify(value) ?? ""
     serialized = `${options.prefix}_${serialized}`
     if (typeof serialized !== "string") throw new Error("Failed to serialize state.")
 
     let hash = 0
-    for (let i = 0; i < serialized.length; i += 2) {
+    for (let i = 0; i < serialized.length; i += 1) {
       hash = (hash << 5) - hash + serialized.charCodeAt(i)
       hash &= hash // Convert to 32bit integer
     }
@@ -89,6 +89,6 @@ export function hashString(value: unknown, options: Options): string | undefined
     return new Uint32Array([hash])[0].toString(36)
   } catch (err) {
     if (options.verbose) error("Failed to generate storage key. See next console message for details.", err)
-    return undefined
+    return serialized
   }
 }

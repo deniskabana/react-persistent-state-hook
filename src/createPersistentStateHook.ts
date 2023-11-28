@@ -17,8 +17,8 @@ import { Options, UsePersistentState } from "./utils/types"
  * ```
  */
 export function createPersistentStateHook(options?: Partial<Options>) {
-  const useMiddleware: UsePersistentState = (initialState, localOptions?: Partial<Options>) => {
-    return usePersistentState(initialState as any, { ...options, ...localOptions })
+  const useMiddleware: UsePersistentState = (initialState, storageKey, localOptions?: Partial<Options>) => {
+    return usePersistentState(initialState as any, storageKey, { ...options, ...localOptions })
   }
 
   return useMiddleware
