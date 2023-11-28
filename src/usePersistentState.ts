@@ -46,8 +46,8 @@ export const usePersistentState: UsePersistentState = <S>(
   // CONFIG AND SETUP
   // --------------------------------------------------
 
-  // Set up immutable config
-  const { current: config } = useRef<Options>({ ...DEFAULT_OPTIONS, ...options })
+  // Set up mutable config - responds to changes
+  const config: Options = { ...DEFAULT_OPTIONS, ...options }
   // Sanitize prefix or use default
   config.prefix = String(String(config.prefix)?.length ? config.prefix : DEFAULT_OPTIONS.prefix) // Sanitize prefix
   // Memoize storage key to prevent re-renders
