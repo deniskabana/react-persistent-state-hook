@@ -12,10 +12,6 @@ export type Options = {
    *  @default false */
   verbose: boolean
 
-  /** A unique key used to store the state value in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
-   *  @default undefined */
-  storageKey: string | undefined
-
   /** The type of Web Storage API to use (either "session" or "local").
    *  @default "local" */
   storageType: StorageType
@@ -30,9 +26,14 @@ export type Options = {
 }
 
 export type UsePersistentState = {
-  <S>(initialState: S | (() => S), options?: Partial<Options>): [S, Dispatch<SetStateAction<S>>, PurgeMethod<S>]
+  <S>(
+    initialState: S | (() => S),
+    storageKey: string,
+    options?: Partial<Options>,
+  ): [S, Dispatch<SetStateAction<S>>, PurgeMethod<S>]
   <S = undefined>(
     initialState: undefined,
+    storageKey: string,
     options?: Partial<Options>,
   ): [S | undefined, Dispatch<SetStateAction<S | undefined>>, PurgeMethod<S>]
 }

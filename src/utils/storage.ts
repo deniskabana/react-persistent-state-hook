@@ -7,7 +7,7 @@ import type { StorageType } from "./types"
  */
 export function storageGet(
   storageType: StorageType,
-  storageKey: string | undefined,
+  storageKey: string,
   value: unknown,
   verbose: boolean,
 ): unknown | void {
@@ -15,7 +15,7 @@ export function storageGet(
   if (verbose) info("Getting value by key from storage", { storageType, storageKey })
 
   try {
-    const storedValue = getStorage(storageType, verbose)?.getItem(storageKey!)
+    const storedValue = getStorage(storageType, verbose).getItem(storageKey)
     const parsedValue = storedValue?.length ? JSON.parse(storedValue) : value
     return parsedValue
   } catch (err) {
@@ -29,7 +29,7 @@ export function storageGet(
  */
 export function storageSet(
   storageType: StorageType,
-  storageKey: string | undefined,
+  storageKey: string,
   value: string | undefined,
   verbose: boolean,
 ): void {
@@ -39,7 +39,11 @@ export function storageSet(
     error("Invalid value type passed to usePersistentState/storageSet. Expected string or undefined.")
 
   if (typeof value === "string" && value?.length) {
-    getStorage(storageType, verbose)?.setItem(storageKey!, value)
+    try {
+      getStorage(storageType, verbose).setItem(storageKey, value)
+    } catch (err: any) {
+      error(err?.message ?? err)
+    }
   } else {
     storageRemove(storageType, storageKey, verbose)
   }
@@ -48,8 +52,8 @@ export function storageSet(
 /**
  * Removes a given key from.
  */
-export function storageRemove(storageType: StorageType, storageKey: string | undefined, verbose: boolean): void {
+export function storageRemove(storageType: StorageType, storageKey: string, verbose: boolean): void {
   if (checkStorageAvailability(storageType, storageKey, verbose)) return
   if (verbose) info("Removing key from storage.", { storageType, storageKey })
-  getStorage(storageType, verbose)?.removeItem(storageKey!)
+  getStorage(storageType, verbose).removeItem(storageKey)
 }

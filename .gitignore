@@ -12,3 +12,4 @@ dist
 !.yarn/sdks
 !.yarn/versions
 .parcel-cache
+*/dist

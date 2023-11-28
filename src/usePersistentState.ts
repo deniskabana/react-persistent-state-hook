@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import {
   checkBrowserStorage,
   checkIfSerializable,
@@ -10,52 +10,56 @@ import { storageSet, storageGet, storageRemove } from "./utils/storage"
 import { DEFAULT_OPTIONS, generateStorageKey, serializeValue } from "./utils/utils"
 import { info } from "./utils/console"
 import { UsePersistentState, Options, PurgeMethod } from "./utils/types"
+import { RPSH_EVENT, createCustomEvent } from "./utils/createCustomEvent"
 
 /**
- * `usePersistentState` is a custom React hook that provides a drop-in replacement for `React.useState`.
- * It allows you to persist the state value without any configuration in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API), such as `localStorage` or `sessionStorage`.
+ * `usePersistentState` is replacement for `React.useState`;
+ * It allows you to persist the state value without any configuration in the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
  * ---
- * @param initialState - The initial state value or a function that returns it. **Keys are generated based on serialized initialState**.
+ * @param initialState - The initial state value or a function that returns it.
+ * @param storageKey - A unique key used to store state value.
  * @param [options=defaultOptions] - Configuration options for the hook.
  * ---
- * @returns The same array as returned by `React.useState` with the addition of a purge method.
- * ---
- * @description
- * This hook combines the functionality of `React.useState` with the [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API) to provide
- * persistence for your state values across page refreshes and browser sessions.
- * It can be particularly useful for maintaining user preferences or form data.
+ * @returns `React.useState`'s return with a purge method - `[value, setValue, purgeValue]`.
  * ---
  * @see {@link https://www.npmjs.com/package/react-persistent-state-hook}
  * @see {@link https://github.com/deniskabana/react-persistent-state-hook}
  * @example
  * ```ts
- * // Replace React.useState without breaking functionality
- * const [count, setCount] = usePersistentState(0)
- * const [count, setCount] = usePersistentState(() => 0)
+ * // Replace React.useState without breaking functionality - uses `localStorage`
+ * const [count, setCount] = usePersistentState(0, "count")
+ * const [count, setCount] = usePersistentState(() => 0, "count")
+ * // 💡 Possible state management replacement with zero configuration (for small apps and UI options) ☝️
  *
- * // Add a unique key to persist state - uses sessionStorage by default
- * const [count, setCount] = usePersistentState(0, "unique-key")
- * // 💡 Possible Redux replacement with zero configuration (for small apps and UI options) ☝️
- *
- * // Easy switching between localStorage and sessionStorage
+ * // Easy switching between local and session storages
  * const [count, setCount] = usePersistentState(0, "unique-key", "local")
+ * const [count, setCount] = usePersistentState(0, "unique-key", "session")
  *
  * // Configurable with options API
- * const [count, setCount] = usePersistentState(0, "unique-key", { verbose: true })
+ * const [count, setCount] = usePersistentState(0, "unique-key", { verbose: true, persistent: false })
  * ```
  */
-export const usePersistentState: UsePersistentState = <S>(initialState: S, options?: Partial<Options> | undefined) => {
+export const usePersistentState: UsePersistentState = <S>(
+  initialState: S,
+  storageKey: string,
+  options?: Partial<Options> | undefined,
+) => {
+  // CONFIG AND SETUP
+  // --------------------------------------------------
+
+  // Set up mutable config - responds to changes
   const config: Options = { ...DEFAULT_OPTIONS, ...options }
+  // Sanitize prefix or use default
   config.prefix = String(String(config.prefix)?.length ? config.prefix : DEFAULT_OPTIONS.prefix) // Sanitize prefix
-  // Memoize this to prevent more serializing and hashing and to not react to run-time initialState change
-  const storageKey = useMemo(() => generateStorageKey(config, initialState), [])
+  // Memoize storage key to prevent re-renders
+  const { current: memoizedStorageKey } = useRef(generateStorageKey(storageKey, initialState, config))
   const { verbose, storageType } = config
 
   // Use React.useState internally
   const [value, setValue] = useState<S>(() => {
     initialState = (typeof initialState === "function" ? (initialState as () => unknown)() : initialState) as S
-    if (!storageKey || !config.persistent) return initialState
-    return (storageGet(storageType, storageKey, initialState, verbose) ?? initialState) as S
+    if (!config.persistent) return initialState
+    return storageGet(storageType, memoizedStorageKey, initialState, verbose) as S
   })
 
   const isMounted = useRef(false) // Remember if we are past first render
@@ -63,39 +67,52 @@ export const usePersistentState: UsePersistentState = <S>(initialState: S, optio
 
   // Initial one-time checks - all verbose
   useEffect(() => {
+    if (verbose) info("Initializing...", { storageKey: memoizedStorageKey, storageType, config })
+
     if (
-      checkMissingStorageKey(storageKey, verbose) ||
+      checkMissingStorageKey(memoizedStorageKey, verbose) ||
       checkStorageType(storageType, verbose) ||
       checkWindow(verbose) ||
       checkBrowserStorage(verbose)
     ) {
       shouldFallback.current = true
     }
+  }, [])
 
-    if (verbose) info("Initializing...", { storageKey, storageType, config })
+  // Event-based on-page synchronization
+  useEffect(() => {
+    const eventListener = (e: any) => setValue(storageGet(storageType, e.detail?.storageKey, value, verbose) as S)
+    if (typeof document !== "undefined") document.addEventListener(RPSH_EVENT, eventListener)
+    return () => {
+      if (typeof document !== "undefined") document.removeEventListener(RPSH_EVENT, eventListener)
+    }
   }, [])
 
   // Update storage on value or config.persistent change
   useEffect(() => {
-    if (verbose) info("Value change event", { storageKey, storageType, value })
+    if (verbose) info("Value change event", { storageKey: memoizedStorageKey, storageType, value })
 
-    if (shouldFallback.current || !storageKey || !config.persistent) return
+    // Fallbacks to non-persistent state if necessary
+    if (shouldFallback.current || !memoizedStorageKey || !config.persistent) return
     if (!isMounted.current || value === undefined) {
       isMounted.current = true
-      if (value === undefined) storageRemove(storageType, storageKey, verbose)
+      if (value === undefined) storageRemove(storageType, memoizedStorageKey, verbose)
       return
     }
 
     const serializedValue = serializeValue(value, verbose)
     if (!checkIfSerializable(serializedValue, verbose)) return
-    storageSet(storageType, storageKey, serializedValue, verbose) // Update or remove value in storage
+    storageSet(storageType, memoizedStorageKey, serializedValue, verbose)
+
+    // Dispatch event to other components with the same key
+    if (typeof document !== "undefined") document.dispatchEvent(createCustomEvent(memoizedStorageKey))
   }, [value, config.persistent])
 
   // Purge state from storage and optionally replace state
   const purgeValue: PurgeMethod<S> = useCallback((newState?: S) => {
-    if (verbose) info("Purging storage...", { storageKey, storageType })
+    if (verbose) info("Purging storage...", { storageKey: memoizedStorageKey, storageType })
 
-    storageRemove(storageType, storageKey, verbose)
+    storageRemove(storageType, memoizedStorageKey, verbose)
     if (newState) setValue(newState)
   }, [])
 
