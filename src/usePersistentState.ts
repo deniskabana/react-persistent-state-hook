@@ -10,6 +10,7 @@ import { storageSet, storageGet, storageRemove } from "./utils/storage"
 import { DEFAULT_OPTIONS, generateStorageKey, serializeValue } from "./utils/utils"
 import { info } from "./utils/console"
 import { UsePersistentState, Options, PurgeMethod } from "./utils/types"
+import { RPSH_EVENT, createCustomEvent } from "./utils/createCustomEvent"
 
 /**
  * `usePersistentState` is replacement for `React.useState`;
@@ -78,6 +79,15 @@ export const usePersistentState: UsePersistentState = <S>(
     }
   }, [])
 
+  // Event-based on-page synchronization
+  useEffect(() => {
+    const eventListener = (e: any) => setValue(storageGet(storageType, e.detail?.storageKey, value, verbose) as S)
+    if (typeof document !== "undefined") document.addEventListener(RPSH_EVENT, eventListener)
+    return () => {
+      if (typeof document !== "undefined") document.removeEventListener(RPSH_EVENT, eventListener)
+    }
+  }, [])
+
   // Update storage on value or config.persistent change
   useEffect(() => {
     if (verbose) info("Value change event", { storageKey: memoizedStorageKey, storageType, value })
@@ -93,6 +103,9 @@ export const usePersistentState: UsePersistentState = <S>(
     const serializedValue = serializeValue(value, verbose)
     if (!checkIfSerializable(serializedValue, verbose)) return
     storageSet(storageType, memoizedStorageKey, serializedValue, verbose)
+
+    // Dispatch event to other components with the same key
+    if (typeof document !== "undefined") document.dispatchEvent(createCustomEvent(memoizedStorageKey))
   }, [value, config.persistent])
 
   // Purge state from storage and optionally replace state

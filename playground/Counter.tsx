@@ -1,5 +1,5 @@
 import React from "react"
-import { usePersistentState } from "../dist/index.esm"
+import { usePersistentState } from "../src/usePersistentState"
 
 export function Counter() {
   const [count, setCount] = usePersistentState(0, "my-count")
