@@ -19,6 +19,7 @@ export function generateStorageKey(storageKey: string, initialState: unknown, op
   if (storageKey) return `${options.prefix}:${storageKey}`
 
   let key: string = storageKey
+  // This is a fallback that you should NEVER run into. It's here just in case.
   if (!key) key = hashString(typeof initialState === "function" ? initialState() : initialState, options)
   key = key.replace(/[^A-Za-z0-9-_@/]/gi, "-")
   return key

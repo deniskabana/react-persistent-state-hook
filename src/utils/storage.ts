@@ -1,7 +1,6 @@
 import { checkStorageAvailability, getStorage } from "./utils"
 import { error, info } from "./console"
 import type { StorageType } from "./types"
-import { createStorageEvent } from "./createStorageEvent"
 
 /**
  * Retrieves a value from BrowserStorage or return value provided.
@@ -41,9 +40,7 @@ export function storageSet(
 
   if (typeof value === "string" && value?.length) {
     try {
-      const storageEvent = createStorageEvent(value, storageKey, { storageType, verbose })
       getStorage(storageType, verbose).setItem(storageKey, value)
-      window.dispatchEvent(storageEvent)
     } catch (err: any) {
       error(err?.message ?? err)
     }
