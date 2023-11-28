@@ -190,39 +190,32 @@ _See source: [`src/usePersistentState.ts:24`](./src/usePersistentState.ts#L24)_
 
 #### Current Plans (`v1.0.0` Release):
 
-> _🚧 Work in progress; Expected finish 09/2023_
-
 - **Resolution Strategies** ??? (discussion needed)
   - Introduce options for handling conflicts when states have different types or structures. Choose from `prefer-stored`, `prefer-new`, `throw-invalid-type`, `merge-prefer-new` and `merge-prefer-stored` (for objects, otherwise `prefer-stored` is used)
   - Default to `merge-prefer-new` to help with type migrations, this falls back to `prefer-stored` for non-objects.
   - Add config keys - `resolutionStrategy` and `resolutionMethod` - that can be used to override the default resolution behavior
 - **StorageEvent implementation**
-  - Make this a major feature/ USP
-  - run setState on changes
+  - Needs more test data
 - **1.0.0 Release 🎉**
   - Freeze the `main` branch and move development to `dev-v1.x` branches, that eventually get merged into `main` as PRs. We need to act responsible 👨‍🏫
 
 #### Planned Improvements (`v1.x` Releases):
 
-> _📝 To-do; Expected finish 10/2023_
-
 - **Even Smaller Footprint**
-  - Reduce bundle size as much as possible, for example by making exported JSDoc comments shorter (and only exporting main hook function JSDoc once - overload through union types)
 - **Custom Serialization and Deserialization Functions**
   - Add the ability to configure your own serialization and deserialization functions instead of relying on `JSON.stringify` and `JSON.parse`
 - **Open-source Friendliness**
   - Add a `CONTRIBUTING.md` file to make it easier for contributors to get started, link to it from `README.md`
-  - Provide a solid tutorial for contributors, set up PR template, issue template, etc.
+  - Provide a solid tutorial for contributors, set up a PR template, issue template, etc.
 
-#### Plans for Version 2:
-
-> _📝 To-do; Expected finish 12/2023_
+#### Possible plans (up for debate and feedback)
 
 - **Storage adapters API**
   - Say goodbye to Web Storage API as a core feature and say hello to storage adapters API. More flexibility, more possibilities! 🔄
   - Implement Web Storage and in-memory storage as exported storage adapter functions / objects
+  - Allow the use of URL data storage for shareable link persistence
 - **React Native support**
-  - Extend our magic to React Native projects with support for the `AsyncStorage` API
+  - Need some help and info
 
 ---
 
