@@ -107,8 +107,8 @@ const [count, setCount] = usePersistentState(0, "unique-key", { verbose: true, p
 > 💡 Possible state management replacement (like context or Redux) with zero configuration in situations where data loss is acceptable (like UI preferences). ☝️
 
 ```typescript
-// You can use prefixes to group related keys
-const [count, setCount] = usePersistentState(0, { prefix: "homepage", storageKey: "count" })
+// You can use your own prefixes to group related keys and prevent conflicts
+const [count, setCount] = usePersistentState(0, "count", { prefix: "ui/homepage" })
 ```
 
 #### Advanced usage
@@ -125,7 +125,7 @@ export const useMyPersistentState = createPersistentStateHook({
 })
 
 // Usage - you can still override default options
-const [page, setPage] = useMyPersistentState(1, { storageKey: "page" })
+const [page, setPage] = useMyPersistentState(1, "page")
 ```
 
 ---

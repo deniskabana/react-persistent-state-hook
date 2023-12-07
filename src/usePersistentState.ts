@@ -48,6 +48,7 @@ export const usePersistentState: UsePersistentState = <S>(
   // --------------------------------------------------
 
   // Set up mutable config - responds to changes
+  const instanceId = useRef(Math.random().toString(36).substr(2, 9)) // Generate unique instance ID
   const config: Options = { ...DEFAULT_OPTIONS, ...options }
   // Sanitize prefix or use default
   config.prefix = String(String(config.prefix)?.length ? config.prefix : DEFAULT_OPTIONS.prefix) // Sanitize prefix
@@ -81,10 +82,13 @@ export const usePersistentState: UsePersistentState = <S>(
 
   // Event-based on-page synchronization
   useEffect(() => {
-    const eventListener = (e: any) => setValue(storageGet(storageType, e.detail?.storageKey, value, verbose) as S)
-    if (typeof document !== "undefined") document.addEventListener(RPSH_EVENT, eventListener)
+    const eventListener = (e: CustomEvent) => {
+      if (e.detail?.instanceId === instanceId.current) return
+      setValue(storageGet(storageType, e.detail?.storageKey, value, verbose) as S)
+    }
+    if (typeof document !== "undefined") document.addEventListener(RPSH_EVENT as any, eventListener)
     return () => {
-      if (typeof document !== "undefined") document.removeEventListener(RPSH_EVENT, eventListener)
+      if (typeof document !== "undefined") document.removeEventListener(RPSH_EVENT as any, eventListener)
     }
   }, [])
 
@@ -105,7 +109,8 @@ export const usePersistentState: UsePersistentState = <S>(
     storageSet(storageType, memoizedStorageKey, serializedValue, verbose)
 
     // Dispatch event to other components with the same key
-    if (typeof document !== "undefined") document.dispatchEvent(createCustomEvent(memoizedStorageKey))
+    if (typeof document !== "undefined")
+      document.dispatchEvent(createCustomEvent(memoizedStorageKey, instanceId.current))
   }, [value, config.persistent])
 
   // Purge state from storage and optionally replace state
