@@ -84,6 +84,7 @@ export const usePersistentState: UsePersistentState = <S>(
   useEffect(() => {
     const eventListener = (e: CustomEvent) => {
       if (e.detail?.instanceId === instanceId.current) return
+      if (e.detail?.storageKey !== memoizedStorageKey) return
       setValue(storageGet(storageType, e.detail?.storageKey, value, verbose) as S)
     }
     if (typeof document !== "undefined") document.addEventListener(RPSH_EVENT as any, eventListener)
