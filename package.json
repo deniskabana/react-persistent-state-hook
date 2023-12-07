@@ -1,6 +1,6 @@
 {
   "name": "react-persistent-state-hook",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "`React.useState` + BrowserStorage API for persistence",
   "source": "src/index.ts",
   "main": "dist/index.cjs.js",
@@ -53,9 +53,9 @@
   },
   "packageManager": "yarn@3.6.3",
   "engines": {
-    "node": ">= 20",
-    "yarn": ">= 3",
-    "npm": ">= 9"
+    "node": ">= 16",
+    "yarn": ">= 1",
+    "npm": ">= 3"
   },
   "devDependencies": {
     "@parcel/packager-ts": "2.9.3",
