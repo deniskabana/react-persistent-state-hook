@@ -1,5 +1,5 @@
 <div align="center">
-  🚫 This project is no longer maintained - cue React v19 form handling.
+  🚫 This project is no longer maintained. Proved to be unnecessary and overengineered.
 </div>
 
 ---
