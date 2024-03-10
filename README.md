@@ -1,4 +1,10 @@
 <div align="center">
+  🚫 This project is no longer maintained - cue React v19 form handling.
+</div>
+
+---
+
+<div align="center">
 
 # react-persistent-state-hook
 
